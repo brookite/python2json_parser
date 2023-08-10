@@ -34,6 +34,10 @@ class SequenceParser(AbstractEntityParser):
 
 class StatementParser(AbstractEntityParser):
     def parse(self, *args, **kwargs) -> dict:
+        if self._node.children:
+            if (call_func := self._node.children[0]).type == "call":
+                return FunctionCallParser(call_func, self._parser).parse()
+
         if self._node.type == "break_statement":
             type = "break"
         elif self._node.type == "continue_statement":
@@ -50,9 +54,25 @@ class StatementParser(AbstractEntityParser):
         }
 
 
+class FunctionCallParser(AbstractEntityParser):
+    def parse(self, *args, **kwargs) -> dict:
+        result = {
+            "id": self._parser.get_new_id(),
+            "type": "func_call",
+            "func_name": self._node.child_by_field_name("function").text.decode(
+                "utf-8"
+            ),
+            "func_args": [],
+        }
+        # TODO: func_id
+        args = self._node.child_by_field_name("arguments").named_children
+        for arg in args:
+            result["func_args"].append(arg.text.decode("utf-8"))
+        return result
+
+
 class ConditionParser(AbstractEntityParser):
     def parse(self, *args, **kwargs) -> dict:
-        print(self._node.sexp())
         result = {
             "id": self._parser.get_new_id(),
             "type": "alternative",
@@ -68,7 +88,7 @@ class ConditionParser(AbstractEntityParser):
         alternatives = self._node.children_by_field_name("alternative")
         for alternative in alternatives:
             result["branches"].append(self._parse_branches(alternative))
-
+        # TODO: cond_values_hint
         condition = self._node.child_by_field_name("condition")
         result["branches"][0]["cond"] = ExpressionParser(
             condition, self._parser
@@ -143,11 +163,11 @@ class Python2JSONParser:
 
     def __init__(self, code: bytes):
         self._tree = parser.parse(code)
-        self._result = {"functions": [], "global_code": {
-            "body": [],
-            "name": "algorithm",
-            "type": "algorithm"
-        }}
+        # print(self._tree.root_node.sexp())
+        self._result = {
+            "functions": [],
+            "global_code": {"body": [], "name": "algorithm", "type": "algorithm"},
+        }
         self._id_counter = 0
 
     def parse_node(self, node: Node):
