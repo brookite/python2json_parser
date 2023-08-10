@@ -143,7 +143,7 @@ class Python2JSONParser:
 
     def __init__(self, code: bytes):
         self._tree = parser.parse(code)
-        self._result = []
+        self._result = {"functions": [], "global_code": []}
         self._id_counter = 0
 
     def parse_node(self, node: Node):
@@ -154,7 +154,10 @@ class Python2JSONParser:
     def parse_all(self):
         for node in self._tree.root_node.children:
             if result := self.parse_node(node):
-                self._result.append(result)
+                if result["type"] == "func":
+                    self._result["functions"].append(result)
+                else:
+                    self._result["global_code"].append(result)
         return self._result
 
     def get_new_id(self):
