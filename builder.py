@@ -172,6 +172,67 @@ class WhileLoopParser(AbstractEntityParser):
         return result
 
 
+class ForLoopParser(AbstractEntityParser):
+    def parse(self, *args, **kwargs) -> dict:
+        result = {
+            "id": self._parser.get_new_id(),
+            "variable": self._node.child_by_field_name("left").text.decode("utf-8"),
+            "body": [],
+        }
+        container = self._node.child_by_field_name("right")
+        if container.type == "call":
+            func_name = container.child_by_field_name("function").text.decode("utf-8")
+            if func_name == "range":
+                result.update(self._parse_for_loop(container, result["variable"]))
+            else:
+                result.update(self._parse_foreach_loop(container, result["variable"]))
+        else:
+            result.update(self._parse_foreach_loop(container, result["variable"]))
+
+        comment_node = self._node.named_children[2]
+        if comment_node.type == "comment":
+            result["name"] = comment_node.text.decode("utf-8")[1:].strip()
+
+        body = self._node.child_by_field_name("body")
+        for child in body.children:
+            if tree_node := self._parser.parse_node(child):
+                result["body"].append(tree_node)
+
+        return result
+
+    def _parse_for_loop(self, cond_node, variable_name) -> dict:
+        result = {"type": "for_loop"}
+
+        arguments = cond_node.child_by_field_name("arguments")
+        start = 0
+        stop = None
+        step = 1
+        if len(arguments.named_children) == 1:
+            stop = arguments.named_children[0].text.decode("utf-8")
+        elif len(arguments.named_children) == 2:
+            start = arguments.named_children[0].text.decode("utf-8")
+            stop = arguments.named_children[1].text.decode("utf-8")
+        else:
+            start = arguments.named_children[0].text.decode("utf-8")
+            stop = arguments.named_children[1].text.decode("utf-8")
+            step = arguments.named_children[2].text.decode("utf-8")
+
+        result["init"] = f"{variable_name}={start}"
+        result["cond"] = f"{variable_name}<{stop}"
+        result["update"] = f"{variable_name}+={step}"
+        return result
+
+    def _parse_foreach_loop(self, container_node, variable_name) -> dict:
+        container = container_node.text.decode("utf-8")
+        return {
+            "container": container,
+            "type": "foreach_loop",
+            "init": f"{variable_name}={container}.first()",
+            "cond": f"{variable_name}!={container}.last()",
+            "update": f"{variable_name}=next({container}, {variable_name})",
+        }
+
+
 class Python2JSONParser:
     TYPE_PARSER = {
         "function_definition": FunctionParser,
@@ -181,6 +242,7 @@ class Python2JSONParser:
         "continue_statement": StatementParser,
         "if_statement": ConditionParser,
         "while_statement": WhileLoopParser,
+        "for_statement": ForLoopParser,
     }
 
     def __init__(self, code: bytes):

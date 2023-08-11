@@ -14,7 +14,7 @@ else:
 while x < 100:  # while name
     x += 10
 
-for i in range(1, 5, 1):
+for i in range(1, 5, 1):  # for-name
     print(i)
 
 lst = []
