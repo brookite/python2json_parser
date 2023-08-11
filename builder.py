@@ -151,6 +151,27 @@ class FunctionParser(AbstractEntityParser):
         return obj
 
 
+class WhileLoopParser(AbstractEntityParser):
+    def parse(self, *args, **kwargs) -> dict:
+        result = {
+            "id": self._parser.get_new_id(),
+            "type": "while_loop",
+            "cond": self._node.child_by_field_name("condition").text.decode("utf-8"),
+            "body": [],
+        }
+
+        comment_node = self._node.children[3]
+        if comment_node.type == "comment":
+            result["name"] = comment_node.text.decode("utf-8")[1:].strip()
+
+        # TODO: cond_values_hint
+        body = self._node.child_by_field_name("body")
+        for child in body.children:
+            if tree_node := self._parser.parse_node(child):
+                result["body"].append(tree_node)
+        return result
+
+
 class Python2JSONParser:
     TYPE_PARSER = {
         "function_definition": FunctionParser,
@@ -159,11 +180,12 @@ class Python2JSONParser:
         "return_statement": StatementParser,
         "continue_statement": StatementParser,
         "if_statement": ConditionParser,
+        "while_statement": WhileLoopParser,
     }
 
     def __init__(self, code: bytes):
         self._tree = parser.parse(code)
-        # print(self._tree.root_node.sexp())
+        print(self._tree.root_node.sexp())
         self._result = {
             "functions": [],
             "global_code": {"body": [], "name": "algorithm", "type": "algorithm"},

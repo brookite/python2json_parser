@@ -11,7 +11,7 @@ elif x < 5:  # cond2 name
 else:
     x += 4
 
-while x < 100:
+while x < 100:  # while name
     x += 10
 
 for i in range(1, 5, 1):
