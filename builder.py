@@ -156,7 +156,9 @@ class WhileLoopParser(AbstractEntityParser):
         result = {
             "id": self._parser.get_new_id(),
             "type": "while_loop",
-            "cond": self._node.child_by_field_name("condition").text.decode("utf-8"),
+            "cond": ExpressionParser(
+                self._node.child_by_field_name("condition"), self._parser
+            ).parse(),
             "body": [],
         }
 
