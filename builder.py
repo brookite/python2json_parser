@@ -247,7 +247,7 @@ class Python2JSONParser:
 
     def __init__(self, code: bytes):
         self._tree = parser.parse(code)
-        print(self._tree.root_node.sexp())
+        # print(self._tree.root_node.sexp())
         self._result = {
             "functions": [],
             "global_code": {"body": [], "name": "algorithm", "type": "algorithm"},

@@ -1,8 +1,22 @@
 import builder
+import argparse
+import json
+import os
+
+argument_parser = argparse.ArgumentParser(
+    description="Compile Python source code to JSON tree"
+)
+argument_parser.add_argument("input", help="Input .py file")
 
 
-with open("examples/example1.py", "rb") as fobj:
-    data = fobj.read()
+def main():
+    args = argument_parser.parse_args()
+    with open(args.input, "rb") as fobj:
+        data = fobj.read()
+    parser = builder.Python2JSONParser(data)
+    result = parser.parse_all()
+    print(json.dumps(result, ensure_ascii=False, indent=True))
 
-parser = builder.Python2JSONParser(data)
-print(parser.parse_all())
+
+if __name__ == "__main__":
+    main()
