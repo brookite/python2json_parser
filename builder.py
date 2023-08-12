@@ -1,5 +1,7 @@
 from tree_sitter import Language, Parser, Node
 from abc import ABC, abstractmethod
+from typing import Optional
+
 
 Language.build_library("build/treesitter.so", ["tree-sitter-python/"])
 PY_LANGUAGE = Language("build/treesitter.so", "python")
@@ -19,7 +21,7 @@ class AbstractEntityParser(ABC):
 
 
 class SequenceParser(AbstractEntityParser):
-    def parse(self, seq_name, *args, **kwargs) -> dict:
+    def parse(self, seq_name, *args, **kwargs) -> Optional[dict]:
         result = []
         for node in self._node.children:
             if entity_node := self._parser.parse_node(node):
@@ -33,7 +35,7 @@ class SequenceParser(AbstractEntityParser):
 
 
 class StatementParser(AbstractEntityParser):
-    def parse(self, *args, **kwargs) -> dict:
+    def parse(self, *args, **kwargs) -> Optional[dict]:
         if self._node.children:
             if (call_func := self._node.children[0]).type == "call":
                 return FunctionCallParser(call_func, self._parser).parse()
@@ -55,7 +57,7 @@ class StatementParser(AbstractEntityParser):
 
 
 class FunctionCallParser(AbstractEntityParser):
-    def parse(self, *args, **kwargs) -> dict:
+    def parse(self, *args, **kwargs) -> Optional[dict]:
         result = {
             "id": self._parser.get_new_id(),
             "type": "func_call",
@@ -72,14 +74,14 @@ class FunctionCallParser(AbstractEntityParser):
 
 
 class ConditionParser(AbstractEntityParser):
-    def parse(self, *args, **kwargs) -> dict:
+    def parse(self, *args, **kwargs) -> Optional[dict]:
         result = {
             "id": self._parser.get_new_id(),
             "type": "alternative",
             "branches": [{"id": self._parser.get_new_id(), "type": "if", "body": []}],
         }
 
-        comment_node = self._node.children[3]
+        comment_node = self._node.named_children[1]
         if comment_node.type == "comment":
             result["branches"][0]["name"] = comment_node.text.decode("utf-8")[
                 1:
@@ -88,7 +90,6 @@ class ConditionParser(AbstractEntityParser):
         alternatives = self._node.children_by_field_name("alternative")
         for alternative in alternatives:
             result["branches"].append(self._parse_branches(alternative))
-        # TODO: cond_values_hint
         condition = self._node.child_by_field_name("condition")
         result["branches"][0]["cond"] = ExpressionParser(
             condition, self._parser
@@ -99,13 +100,13 @@ class ConditionParser(AbstractEntityParser):
                 result["branches"][0]["body"].append(tree_node)
         return result
 
-    def _parse_branches(self, node) -> dict:
+    def _parse_branches(self, node) -> Optional[dict]:
         result = {"id": self._parser.get_new_id(), "body": []}
         body = None
         if node.type == "elif_clause":
             result["type"] = "else-if"
 
-            comment_node = node.children[3]
+            comment_node = node.named_children[1]
             if comment_node.type == "comment":
                 result["name"] = comment_node.text.decode("utf-8")[1:].strip()
 
@@ -114,6 +115,11 @@ class ConditionParser(AbstractEntityParser):
             result["cond"] = ExpressionParser(condition, self._parser).parse()
         elif node.type == "else_clause":
             result["type"] = "else"
+            comment_node = node.named_children[1]
+
+            if comment_node.type == "comment":
+                result["name"] = comment_node.text.decode("utf-8")[1:].strip()
+
             body = node.child_by_field_name("body")
         for child in body.children:
             if tree_node := self._parser.parse_node(child):
@@ -122,7 +128,7 @@ class ConditionParser(AbstractEntityParser):
 
 
 class ExpressionParser(AbstractEntityParser):
-    def parse(self, *args, **kwargs) -> dict:
+    def parse(self, *args, **kwargs) -> Optional[dict]:
         return {
             "id": self._parser.get_new_id(),
             "type": "expr",
@@ -131,7 +137,7 @@ class ExpressionParser(AbstractEntityParser):
 
 
 class FunctionParser(AbstractEntityParser):
-    def parse(self) -> dict:
+    def parse(self) -> Optional[dict]:
         obj = {
             "id": self._parser.get_new_id(),
             "type": "func",
@@ -152,34 +158,33 @@ class FunctionParser(AbstractEntityParser):
 
 
 class WhileLoopParser(AbstractEntityParser):
-    def parse(self, *args, **kwargs) -> dict:
+    def parse(self, *args, **kwargs) -> Optional[dict]:
         result = {
             "id": self._parser.get_new_id(),
             "type": "while_loop",
             "cond": ExpressionParser(
                 self._node.child_by_field_name("condition"), self._parser
             ).parse(),
-            "body": [],
+            "body": {},
         }
 
-        comment_node = self._node.children[3]
+        comment_node = self._node.named_children[1]
         if comment_node.type == "comment":
             result["name"] = comment_node.text.decode("utf-8")[1:].strip()
 
-        # TODO: cond_values_hint
         body = self._node.child_by_field_name("body")
-        for child in body.children:
-            if tree_node := self._parser.parse_node(child):
-                result["body"].append(tree_node)
+        name = result.get("name", "") + "_loop_body"
+        result["body"] = SequenceParser(body, self._parser).parse(name)
+
         return result
 
 
 class ForLoopParser(AbstractEntityParser):
-    def parse(self, *args, **kwargs) -> dict:
+    def parse(self, *args, **kwargs) -> Optional[dict]:
         result = {
             "id": self._parser.get_new_id(),
             "variable": self._node.child_by_field_name("left").text.decode("utf-8"),
-            "body": [],
+            "body": {},
         }
         container = self._node.child_by_field_name("right")
         if container.type == "call":
@@ -196,9 +201,8 @@ class ForLoopParser(AbstractEntityParser):
             result["name"] = comment_node.text.decode("utf-8")[1:].strip()
 
         body = self._node.child_by_field_name("body")
-        for child in body.children:
-            if tree_node := self._parser.parse_node(child):
-                result["body"].append(tree_node)
+        name = result.get("name", "") + "_loop_body"
+        result["body"] = SequenceParser(body, self._parser).parse(name)
 
         return result
 
@@ -251,8 +255,11 @@ class Python2JSONParser:
         self._tree = parser.parse(code)
         # print(self._tree.root_node.sexp())
         self._result = {
+            "id": self.get_new_id(),
             "functions": [],
-            "global_code": {"body": [], "name": "algorithm", "type": "algorithm"},
+            "global_code": {"body": [], "name": "global_code", "type": "sequence"},
+            "name": "algorithm",
+            "type": "algorithm",
         }
         self._id_counter = 0
 
