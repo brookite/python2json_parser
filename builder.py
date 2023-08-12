@@ -115,7 +115,7 @@ class ConditionParser(AbstractEntityParser):
             result["cond"] = ExpressionParser(condition, self._parser).parse()
         elif node.type == "else_clause":
             result["type"] = "else"
-            comment_node = node.named_children[1]
+            comment_node = node.named_children[0]
 
             if comment_node.type == "comment":
                 result["name"] = comment_node.text.decode("utf-8")[1:].strip()
@@ -254,6 +254,7 @@ class Python2JSONParser:
     def __init__(self, code: bytes):
         self._tree = parser.parse(code)
         # print(self._tree.root_node.sexp())
+        self._id_counter = 0
         self._result = {
             "id": self.get_new_id(),
             "functions": [],
@@ -261,7 +262,6 @@ class Python2JSONParser:
             "name": "algorithm",
             "type": "algorithm",
         }
-        self._id_counter = 0
 
     def parse_node(self, node: Node):
         entity_parser = self.TYPE_PARSER.get(node.type)
