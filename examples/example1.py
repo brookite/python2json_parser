@@ -16,6 +16,8 @@ while x < 100:  # while name
 
 for i in range(1, 5, 1):  # for-name
     print(i)
+    func(1, 10)
+    x = func(1, 10)
 
 lst = []
 for x in lst:

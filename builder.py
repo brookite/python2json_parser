@@ -1,6 +1,6 @@
 from tree_sitter import Language, Parser, Node
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Tuple
 
 
 Language.build_library("build/treesitter.so", ["tree-sitter-python/"])
@@ -38,7 +38,11 @@ class StatementParser(AbstractEntityParser):
     def parse(self, *args, **kwargs) -> Optional[dict]:
         if self._node.children:
             if (call_func := self._node.children[0]).type == "call":
-                return FunctionCallParser(call_func, self._parser).parse()
+                func_name = call_func.child_by_field_name("function").text.decode(
+                    "utf-8"
+                )
+                if function := self._parser.find_function(func_name)[1]:
+                    return FunctionCallParser(call_func, self._parser).parse(function)
 
         if self._node.type == "break_statement":
             type = "break"
@@ -57,16 +61,16 @@ class StatementParser(AbstractEntityParser):
 
 
 class FunctionCallParser(AbstractEntityParser):
-    def parse(self, *args, **kwargs) -> Optional[dict]:
+    def parse(self, function, *args, **kwargs) -> Optional[dict]:
         result = {
             "id": self._parser.get_new_id(),
             "type": "func_call",
             "func_name": self._node.child_by_field_name("function").text.decode(
                 "utf-8"
             ),
+            "func_id": function["id"],
             "func_args": [],
         }
-        # TODO: func_id
         args = self._node.child_by_field_name("arguments").named_children
         for arg in args:
             result["func_args"].append(arg.text.decode("utf-8"))
@@ -276,6 +280,12 @@ class Python2JSONParser:
                 else:
                     self._result["global_code"]["body"].append(result)
         return self._result
+
+    def find_function(self, name: str) -> Tuple[int, Optional[dict]]:
+        for i, function in enumerate(self._result["functions"]):
+            if function["name"] == name:
+                return i, function
+        return -1, None
 
     def get_new_id(self):
         self._id_counter += 1
