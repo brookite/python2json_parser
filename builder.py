@@ -1,7 +1,6 @@
 from tree_sitter import Language, Parser, Node
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
-
+from typing import Optional, Tuple, List
 
 Language.build_library("build/treesitter.so", ["tree-sitter-python/"])
 PY_LANGUAGE = Language("build/treesitter.so", "python")
@@ -34,16 +33,31 @@ class SequenceParser(AbstractEntityParser):
         }
 
 
-class StatementParser(AbstractEntityParser):
-    def parse(self, *args, **kwargs) -> Optional[dict]:
-        if self._node.children:
-            if (call_func := self._node.children[0]).type == "call":
-                func_name = call_func.child_by_field_name("function").text.decode(
-                    "utf-8"
-                )
-                if function := self._parser.find_function(func_name)[1]:
-                    return FunctionCallParser(call_func, self._parser).parse(function)
+class AbstractExpressionParser(AbstractEntityParser):
+    def find_function_calls(self) -> List[Tuple[str, Node]]:
+        children = [self._node]
+        result = []
+        while len(children):
+            node = children.pop(0)
+            if node.type == "call":
+                name = node.child_by_field_name("function").text.decode("utf-8")
+                result.append((name, node))
+            children.extend(node.children)
+        return result
 
+    def parse_function_calls(self):
+        function_calls_nodes = self.find_function_calls()
+        function_calls = []
+        for func_name, func_node in function_calls_nodes:
+            if function := self._parser.find_function(func_name)[1]:
+                function_calls.append(
+                    FunctionCallParser(func_node, self._parser).parse(function)
+                )
+        return function_calls
+
+
+class StatementParser(AbstractExpressionParser):
+    def parse(self, *args, **kwargs) -> Optional[dict]:
         if self._node.type == "break_statement":
             type = "break"
         elif self._node.type == "continue_statement":
@@ -57,6 +71,7 @@ class StatementParser(AbstractEntityParser):
             "id": self._parser.get_new_id(),
             "type": type,
             "name": self._node.text.decode("utf-8"),
+            "func_calls": self.parse_function_calls(),
         }
 
 
@@ -131,12 +146,13 @@ class ConditionParser(AbstractEntityParser):
         return result
 
 
-class ExpressionParser(AbstractEntityParser):
+class ExpressionParser(AbstractExpressionParser):
     def parse(self, *args, **kwargs) -> Optional[dict]:
         return {
             "id": self._parser.get_new_id(),
             "type": "expr",
             "name": self._node.text.decode("utf-8"),
+            "func_calls": self.parse_function_calls(),
         }
 
 
