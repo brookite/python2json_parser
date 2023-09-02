@@ -1,0 +1,239 @@
+{
+ "id": 1,
+ "functions": [
+  {
+   "id": 2,
+   "type": "func",
+   "name": "func",
+   "param_list": [
+    "a",
+    "b"
+   ],
+   "is_entry": false,
+   "return_type": "int",
+   "body": {
+    "id": 5,
+    "type": "sequence",
+    "name": "func-body",
+    "body": [
+     {
+      "id": 3,
+      "type": "stmt",
+      "name": "x = 1",
+      "func_calls": []
+     },
+     {
+      "id": 4,
+      "type": "return",
+      "name": "return x",
+      "func_calls": []
+     }
+    ]
+   }
+  }
+ ],
+ "global_code": {
+  "body": [
+   {
+    "id": 6,
+    "type": "stmt",
+    "name": "x = 1",
+    "func_calls": []
+   },
+   {
+    "id": 7,
+    "type": "alternative",
+    "branches": [
+     {
+      "id": 8,
+      "type": "if",
+      "body": [
+       {
+        "id": 15,
+        "type": "stmt",
+        "name": "x += 10",
+        "func_calls": []
+       }
+      ],
+      "name": "cond name",
+      "cond": {
+       "id": 14,
+       "type": "expr",
+       "name": "x > 10",
+       "func_calls": []
+      }
+     },
+     {
+      "id": 9,
+      "body": [
+       {
+        "id": 11,
+        "type": "stmt",
+        "name": "x += 20",
+        "func_calls": []
+       }
+      ],
+      "type": "else-if",
+      "name": "cond2 name",
+      "cond": {
+       "id": 10,
+       "type": "expr",
+       "name": "x < 5",
+       "func_calls": []
+      }
+     },
+     {
+      "id": 12,
+      "body": [
+       {
+        "id": 13,
+        "type": "stmt",
+        "name": "x += 4",
+        "func_calls": []
+       }
+      ],
+      "type": "else"
+     }
+    ]
+   },
+   {
+    "id": 16,
+    "type": "while_loop",
+    "cond": {
+     "id": 17,
+     "type": "expr",
+     "name": "x < 100",
+     "func_calls": []
+    },
+    "body": {
+     "id": 19,
+     "type": "sequence",
+     "name": "while name_loop_body",
+     "body": [
+      {
+       "id": 18,
+       "type": "stmt",
+       "name": "x += 10",
+       "func_calls": []
+      }
+     ]
+    },
+    "name": "while name"
+   },
+   {
+    "id": 20,
+    "variable": "i",
+    "body": {
+     "id": 29,
+     "type": "sequence",
+     "name": "for-name_loop_body",
+     "body": [
+      {
+       "id": 21,
+       "type": "stmt",
+       "name": "print(i)",
+       "func_calls": []
+      },
+      {
+       "id": 22,
+       "type": "stmt",
+       "name": "func(1, 10)",
+       "func_calls": [
+        {
+         "id": 23,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          "1",
+          "10"
+         ]
+        }
+       ]
+      },
+      {
+       "id": 24,
+       "type": "stmt",
+       "name": "x = func(1, 10)",
+       "func_calls": [
+        {
+         "id": 25,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          "1",
+          "10"
+         ]
+        }
+       ]
+      },
+      {
+       "id": 26,
+       "type": "stmt",
+       "name": "y = func(1, 10) + 5 * 42 << 5 + func(2, 20)",
+       "func_calls": [
+        {
+         "id": 27,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          "1",
+          "10"
+         ]
+        },
+        {
+         "id": 28,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          "2",
+          "20"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    "type": "for_loop",
+    "init": "i=1",
+    "cond": "i<5",
+    "update": "i+=1",
+    "name": "for-name"
+   },
+   {
+    "id": 30,
+    "type": "stmt",
+    "name": "lst = []",
+    "func_calls": []
+   },
+   {
+    "id": 31,
+    "variable": "x",
+    "body": {
+     "id": 32,
+     "type": "sequence",
+     "name": "_loop_body",
+     "body": []
+    },
+    "container": "lst",
+    "type": "foreach_loop",
+    "init": "x=lst.first()",
+    "cond": "x!=lst.last()",
+    "update": "x=next(lst, x)"
+   },
+   {
+    "id": 33,
+    "type": "stmt",
+    "name": "print(\"Call function\")",
+    "func_calls": []
+   }
+  ],
+  "name": "global_code",
+  "type": "sequence"
+ },
+ "name": "algorithm",
+ "type": "algorithm"
+}

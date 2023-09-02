@@ -1,7 +1,6 @@
 import builder
 import argparse
 import json
-import os
 
 argument_parser = argparse.ArgumentParser(
     description="Compile Python source code to JSON tree"
