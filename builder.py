@@ -102,9 +102,7 @@ class ConditionParser(AbstractEntityParser):
 
         comment_node = self._node.named_children[1]
         if comment_node.type == "comment":
-            result["branches"][0]["name"] = comment_node.text.decode("utf-8")[
-                1:
-            ].strip()
+            result["name"] = comment_node.text.decode("utf-8")[1:].strip()
 
         alternatives = self._node.children_by_field_name("alternative")
         for alternative in alternatives:
@@ -124,21 +122,11 @@ class ConditionParser(AbstractEntityParser):
         body = None
         if node.type == "elif_clause":
             result["type"] = "else-if"
-
-            comment_node = node.named_children[1]
-            if comment_node.type == "comment":
-                result["name"] = comment_node.text.decode("utf-8")[1:].strip()
-
             body = node.child_by_field_name("consequence")
             condition = node.child_by_field_name("condition")
             result["cond"] = ExpressionParser(condition, self._parser).parse()
         elif node.type == "else_clause":
             result["type"] = "else"
-            comment_node = node.named_children[0]
-
-            if comment_node.type == "comment":
-                result["name"] = comment_node.text.decode("utf-8")[1:].strip()
-
             body = node.child_by_field_name("body")
         for child in body.children:
             if tree_node := self._parser.parse_node(child):
@@ -193,7 +181,7 @@ class WhileLoopParser(AbstractEntityParser):
             result["name"] = comment_node.text.decode("utf-8")[1:].strip()
 
         body = self._node.child_by_field_name("body")
-        name = result.get("name", "") + "_loop_body"
+        name = result.get("name", str(result["id"])) + "_loop_body"
         result["body"] = SequenceParser(body, self._parser).parse(name)
 
         return result
@@ -221,7 +209,7 @@ class ForLoopParser(AbstractEntityParser):
             result["name"] = comment_node.text.decode("utf-8")[1:].strip()
 
         body = self._node.child_by_field_name("body")
-        name = result.get("name", "") + "_loop_body"
+        name = result.get("name", str(result["id"])) + "_loop_body"
         result["body"] = SequenceParser(body, self._parser).parse(name)
 
         return result
