@@ -1,6 +1,9 @@
 <div class="code-line">
-<div class="left-border">{{ tabs }}</div>
+{% if tabs %}
+<span class="left-border">{{ tabs }}</span>
+{% endif %}
 <span class="keyword">def</span> <span class="variable">{{ func_name }}</span> 
+{{ arguments }}
 {% if func_return_type %}
 -> {{ func_return_type }}
 {% endif %}:
