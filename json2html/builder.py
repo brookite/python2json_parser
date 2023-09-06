@@ -34,6 +34,60 @@ class AbstractEntityRenderer(ABC):
         pass
 
 
+class AlternativeRenderer(AbstractEntityRenderer):
+    PHASE_LABEL_PLAY = "Начнётся"
+    PHASE_LABEL_STOP = "Закончится"
+    PHASE_EXPR_LABEL_PLAY = "Выполнится"
+
+    ACT_TYPE_PLAY = "started"
+    ACT_TYPE_EXPR_PLAY = "performed"
+
+    ACT_NAME_PLAY_TEMPLATE = "развилка `{}`"
+    ACT_NAME_EXPR_TEMPLATE = "условие `{}`"
+
+    def render_html(self, *args, **kwargs) -> str:
+        tabs = kwargs.get("tabs", "")
+        template = self._ancestor.get_template(self._node["type"])
+        alters = []
+        main_alternative = self._ancestor.render_nodes(self._node["branches"][0]["body"])
+        branches = []
+        else_info = {}
+        for branch in self._node["branches"][1:]:
+            if branch["type"] == "else":
+                else_info = {
+                    "else_alternative": self._ancestor.render_nodes(branch["body"]),
+                }
+            else:
+                branches.append({
+                    "id": branch["id"],
+                    "cond": branch["cond"]["cond_name"],
+                    "body": self._ancestor.render_nodes(branch["body"]),
+                    "expr_id": branch["cond"]["id"], 
+                    "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY, 
+                    "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY, 
+                    "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE
+                })
+        return template.render(
+            {
+                "id": self._node["id"],
+                "tabs": tabs,
+                "alternatives": branches,
+                "main_condition": self._node["branches"][0]["cond"]["cond_name"],
+                "main_alternative": main_alternative,
+                "act_type_play": self.ACT_TYPE_PLAY,
+                "phase_label_play": self.PHASE_LABEL_PLAY,
+                "act_play_name": self.ACT_NAME_PLAY_TEMPLATE.format(
+                    self._node["name"]
+                ),
+                "phase_label_stop": self.PHASE_LABEL_STOP,
+                "expr_id": self._node["branches"][0]["cond"]["id"], 
+                "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY, 
+                "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY, 
+                "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE
+            }
+        )
+
+
 class StatementRenderer(AbstractEntityRenderer):
     PHASE_LABEL_PLAY = "Выполнится"
     ACT_TYPE_PLAY = "performed"
@@ -111,7 +165,7 @@ class JSON2HtmlBuilder:
         if renderer := self.type2renderer.get(node["type"]):
             return renderer(node, self)
 
-    def render_nodes(self, nodes, tabs="") -> str:
+    def render_nodes(self, nodes, tabs=Tab(0)) -> str:
         html = ""
         for element in nodes:
             if renderer := self.get_renderer(element):
