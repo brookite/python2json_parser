@@ -1,1 +1,5 @@
-# {{comment}}
+{% macro make_comment(text) -%}
+{% if text %}
+# {{text}}
+{% endif %}
+{%- endmacro %}

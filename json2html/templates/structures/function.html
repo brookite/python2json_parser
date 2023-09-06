@@ -1,7 +1,6 @@
+{% from 'utils/tabs.html' import insert_tabs %}
 <div class="code-line">
-{% if tabs %}
-<span class="left-border">{{ tabs }}</span>
-{% endif %}
+{{ insert_tabs(tabs) }}
 <span class="keyword">def</span> <span class="variable">{{ func_name }}</span> 
 {{ arguments }}
 {% if func_return_type %}

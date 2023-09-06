@@ -1,8 +1,7 @@
 {% from 'utils/button_play.html' import play_button %}
+{% from 'utils/tabs.html' import insert_tabs %}
 <div class="code-line">
-    {% if tabs %}
-    <span class="left-border">{{ tabs }}</span>
-    {% endif %}
+    {{ insert_tabs(tabs) }}
     {{ play_button(id, act_type_play, phase_label_play, act_name) }}
     <span class="keyword">{{stmt}}</span>
 </div>

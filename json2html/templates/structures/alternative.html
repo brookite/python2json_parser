@@ -1,24 +1,23 @@
 {% from 'utils/button_play.html' import play_button %}
 {% from 'utils/button_stop.html' import stop_button %}
+{% from 'structures/comment.html' import make_comment %}
+{% from 'utils/tabs.html' import insert_tabs %}
 <div class="code-line">
-    {% if tabs %}
-    <span class="left-border">{{ tabs }}</span>
-    {% endif %}
-    {{ play_button(id, act_type_play, phase_label_play, act_name) }}
+    {{ insert_tabs(tabs) }}
+    {{ play_button(id, act_type_play, info.phase_label_play, act_play_name) }}
     <span class="keyword">if</span>
-    {{ stop_button(id, phase_label_stop, act_name) }}
+    {{ stop_button(id, phase_label_stop, act_play_name) }}
     ({{ play_button(expr_id, expr_act_type_play, expr_phase_label_play, expr_act_name) }}
     <span class="variable">{{main_condition}}</span>):
+      {{ make_comment(name) }}
 </div>
 {{main_alternative}}
 {% for alter in alternatives %}
 <div class="code-line">
-    {% if tabs %}
-    <span class="left-border">{{ tabs }}</span>
-    {% endif %}
-    {{ play_button(alter.id, alter.act_type_play, alter.phase_label_play, alter.act_name) }}
+    {{ insert_tabs(tabs) }}
+    {{ play_button(alter.id, alter.act_type_play, alter.phase_label_play, alter.act_play_name) }}
     <span class="keyword">elif</span>
-    {{ stop_button(alter.id, alter.phase_label_stop, alter.act_name) }}
+    {{ stop_button(alter.id, alter.phase_label_stop, alter.act_stop_name) }}
     ({{ play_button(alter.expr_id, alter.expr_act_type_play, alter.expr_phase_label_play, alter.expr_act_name) }}
     <span class="variable">{{ alter.cond }}</span>):
 </div>
@@ -26,12 +25,10 @@
 {% endfor %}
 {% if else_alternative %}
 <div class="code-line">
-    {% if tabs %}
-    <span class="left-border">{{ tabs }}</span>
-    {% endif %}
-    {{ play_button(else_id, else_act_type_play, else_phase_label_play, else_act_name) }}
+    {{ insert_tabs(tabs) }}
+    {{ play_button(else_id, else_act_type_play, else_phase_label_play, else_act_play_name) }}
     <span class="keyword">else</span>
-    {{ stop_button(else_id, else_phase_label_stop, else_act_name) }}
+    {{ stop_button(else_id, else_phase_label_stop, else_act_stop_name) }}
 </div>
 {{ else_alternative }}
 {% endif %}
