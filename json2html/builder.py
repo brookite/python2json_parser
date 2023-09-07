@@ -45,6 +45,7 @@ class AlternativeRenderer(AbstractEntityRenderer):
     ACT_NAME_PLAY_TEMPLATE = "развилка `{}`"
     ACT_NAME_BRANCH_TEMPLATE = "ветка с условием `{}`"
     ACT_NAME_EXPR_TEMPLATE = "условие `{}`"
+    ACT_NAME_ELSE_TEMPLATE = "ветка `иначе`"
 
     def render_html(self, *args, **kwargs) -> str:
         tabs = kwargs.get("tabs", "")
@@ -76,6 +77,10 @@ class AlternativeRenderer(AbstractEntityRenderer):
             if branch["type"] == "else":
                 branches["else"] = {
                     "body": self._ancestor.render_nodes(branch["body"], tabs=tabs.up()),
+                    "act_type_play": self.ACT_TYPE_PLAY,
+                    "phase_label_play": self.PHASE_LABEL_PLAY,
+                    "act_play_name": self.ACT_NAME_ELSE_TEMPLATE,
+                    "phase_label_stop": self.PHASE_LABEL_STOP,
                 }
             else:
                 branches["alternatives"].append(
@@ -88,7 +93,9 @@ class AlternativeRenderer(AbstractEntityRenderer):
                         "expr_id": branch["cond"]["id"],
                         "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
                         "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY,
-                        "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE,
+                        "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE.format(
+                            branch["cond"]["name"]
+                        ),
                         "act_type_play": self.ACT_TYPE_PLAY,
                         "phase_label_play": self.PHASE_LABEL_PLAY,
                         "act_play_name": self.ACT_NAME_BRANCH_TEMPLATE.format(
@@ -109,6 +116,87 @@ class AlternativeRenderer(AbstractEntityRenderer):
                 ),
                 "name": self._node.get("name"),
                 "phase_label_stop": self.PHASE_LABEL_STOP,
+            }
+        )
+
+
+class ForLoopRenderer(AbstractEntityRenderer):
+    PHASE_LABEL_PLAY = "Начнётся"
+    PHASE_LABEL_STOP = "Закончится"
+    ACT_TYPE_PLAY = "started"
+    ACT_NAME_TEMPLATE = "цикл `{}`"
+    ACT_ITER_NAME_TEMPLATE = "итерация цикла `{}`"
+
+    def render_html(self, *args, **kwargs) -> str:
+        tabs = kwargs.get("tabs", "")
+        template = self._ancestor.get_template(self._node["type"])
+        if self._node["type"] == "for_loop":
+            start = int(self._node["init"].split("=")[1])
+            stop = int(self._node["cond"].split("<")[1])
+            step = int(self._node["update"].split("+=")[1])
+            extend = {
+                "start": start,
+                "stop": stop,
+                "step": step,
+            }
+        else:
+            extend = {"container": self._node["container"]}
+        extend["variable"] = self._node["variable"]
+        return template.render(
+            {
+                "id": self._node["id"],
+                "seq_id": self._node["body"]["id"],
+                "tabs": tabs,
+                "act_type_play": self.ACT_TYPE_PLAY,
+                "phase_label_play": self.PHASE_LABEL_PLAY,
+                "act_name": self.ACT_NAME_TEMPLATE.format(self._node.get("name", "")),
+                "act_iter_name": self.ACT_ITER_NAME_TEMPLATE.format(
+                    self._node.get("name", "")
+                ),
+                "name": self._node.get("name", ""),
+                "loop_body": self._ancestor.render_nodes(
+                    self._node["body"]["body"], tabs=tabs.up()
+                ),
+                **extend,
+            }
+        )
+
+
+class WhileLoopRenderer(AbstractEntityRenderer):
+    PHASE_LABEL_PLAY = "Начнётся"
+    PHASE_LABEL_STOP = "Закончится"
+    ACT_TYPE_PLAY = "started"
+    ACT_NAME_TEMPLATE = "цикл `{}`"
+    ACT_ITER_NAME_TEMPLATE = "итерация цикла `{}`"
+    ACT_NAME_EXPR_TEMPLATE = "условие `{}`"
+    ACT_TYPE_EXPR_PLAY = "performed"
+    PHASE_EXPR_LABEL_PLAY = "Выполнится"
+
+    def render_html(self, *args, **kwargs) -> str:
+        tabs = kwargs.get("tabs", "")
+        template = self._ancestor.get_template(self._node["type"])
+        return template.render(
+            {
+                "id": self._node["id"],
+                "seq_id": self._node["body"]["id"],
+                "tabs": tabs,
+                "act_type_play": self.ACT_TYPE_PLAY,
+                "phase_label_play": self.PHASE_LABEL_PLAY,
+                "act_name": self.ACT_NAME_TEMPLATE.format(self._node.get("name", "")),
+                "act_iter_name": self.ACT_ITER_NAME_TEMPLATE.format(
+                    self._node.get("name", "")
+                ),
+                "name": self._node.get("name", ""),
+                "loop_body": self._ancestor.render_nodes(
+                    self._node["body"]["body"], tabs=tabs.up()
+                ),
+                "condition": self._node["cond"]["name"],
+                "expr_id": self._node["cond"]["id"],
+                "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
+                "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY,
+                "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE.format(
+                    self._node["cond"]["name"]
+                ),
             }
         )
 
@@ -158,6 +246,7 @@ class FunctionRenderer(AbstractEntityRenderer):
                 "return_type": self._node.get("return_type"),
                 "tabs": tabs,
                 "function_body": body_html,
+                "func_return_type": self._node["return_type"],
             }
         )
 
@@ -170,6 +259,9 @@ class JSON2HtmlBuilder:
         "return": "keyword_statement",
         "continue": "keyword_statement",
         "alternative": "alternative",
+        "for_loop": "for_loop",
+        "foreach_loop": "foreach_loop",
+        "while_loop": "while_loop",
     }
 
     type2renderer = {
@@ -179,6 +271,9 @@ class JSON2HtmlBuilder:
         "break": StatementRenderer,
         "return": StatementRenderer,
         "continue": StatementRenderer,
+        "for_loop": ForLoopRenderer,
+        "foreach_loop": ForLoopRenderer,
+        "while_loop": WhileLoopRenderer,
     }
 
     def __init__(self):

@@ -2,6 +2,7 @@
 {% from 'utils/button_stop.html' import stop_button %}
 {% from 'structures/comment.html' import make_comment %}
 {% from 'utils/tabs.html' import insert_tabs %}
+{% from 'utils/block_body.html' import insert_block %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}
     {{ play_button(id, act_type_play, phase_label_play, act_play_name) }}<span class="keyword">if</span>
@@ -11,7 +12,7 @@
       {{ make_comment(name) }}
     {{ play_button(branch.if.id, branch.if.act_type_play, branch.if.phase_label_play, branch.if.act_play_name) }}
 </div>
-{{branch.if.body}}
+{{ insert_block(branch.if.body, tabs) }}
 {{ stop_button(branch.if.id, branch.if.phase_label_stop, branch.if.act_play_name) }}
 {% for alter in branch.alternatives %}
 <div class="code-line">
@@ -21,7 +22,7 @@
     <span class="variable">{{ alter.condition }}</span>):
     {{ play_button(alter.id, alter.act_type_play, alter.phase_label_play, alter.act_play_name) }}
 </div>
-{{ alter.body }}
+{{ insert_block(alter.body, tabs) }}
 {{ stop_button(alter.id, alter.phase_label_stop, alter.act_play_name) }}
 {% endfor %}
 {% if branch.else %}
@@ -30,6 +31,6 @@
     <span class="keyword">else</span>:
     {{ play_button(branch.else.id, branch.else.act_type_play, branch.else.phase_label_play, branch.else.act_play_name) }}
 </div>
-{{ branch.else.body }}
+{{ insert_block(branch.else.body, tabs) }}
 {{ stop_button(branch.else.id, branch.else.phase_label_stop, branch.else.act_play_name) }}
 {% endif %}

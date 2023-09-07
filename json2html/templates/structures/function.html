@@ -1,4 +1,5 @@
 {% from 'utils/tabs.html' import insert_tabs %}
+{% from 'utils/block_body.html' import insert_block %}
 <div class="code-line">
 {{ insert_tabs(tabs) }}
 <span class="keyword">def</span> <span class="variable">{{ func_name }}</span> 
@@ -7,4 +8,4 @@
 -> {{ func_return_type }}
 {% endif %}:
 </div>
-{{ function_body }}
+{{ insert_block(function_body, tabs) }}

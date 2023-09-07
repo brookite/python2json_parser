@@ -1,0 +1,10 @@
+{% from 'utils/tabs.html' import insert_tabs %}
+
+{% macro insert_block(body, tabs) -%}
+{% if body %}
+{{ body }}
+{% else %}
+<div class="code-line">
+{{ insert_tabs(tabs.up()) }}<span class="keyword">pass</span></div>
+{% endif %}
+{%- endmacro %}
