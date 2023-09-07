@@ -55,7 +55,6 @@
         "func_calls": []
        }
       ],
-      "name": "cond name",
       "cond": {
        "id": 14,
        "type": "expr",
@@ -74,7 +73,6 @@
        }
       ],
       "type": "else-if",
-      "name": "cond2 name",
       "cond": {
        "id": 10,
        "type": "expr",
@@ -94,7 +92,8 @@
       ],
       "type": "else"
      }
-    ]
+    ],
+    "name": "cond name"
    },
    {
     "id": 16,
@@ -215,7 +214,7 @@
     "body": {
      "id": 32,
      "type": "sequence",
-     "name": "_loop_body",
+     "name": "31_loop_body",
      "body": []
     },
     "container": "lst",

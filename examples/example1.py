@@ -6,7 +6,7 @@ def func(a, b) -> int:
 x = 1
 if x > 10:  # cond name
     x += 10
-elif x < 5:  # cond2 name
+elif x < 5:
     x += 20
 else:
     x += 4

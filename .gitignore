@@ -2,4 +2,4 @@ __pycache__/
 venv/
 /build/
 .idea/
-result.json
+examples/example2.json

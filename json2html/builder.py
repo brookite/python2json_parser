@@ -43,47 +43,72 @@ class AlternativeRenderer(AbstractEntityRenderer):
     ACT_TYPE_EXPR_PLAY = "performed"
 
     ACT_NAME_PLAY_TEMPLATE = "развилка `{}`"
+    ACT_NAME_BRANCH_TEMPLATE = "ветка с условием `{}`"
     ACT_NAME_EXPR_TEMPLATE = "условие `{}`"
 
     def render_html(self, *args, **kwargs) -> str:
         tabs = kwargs.get("tabs", "")
         template = self._ancestor.get_template(self._node["type"])
-        alters = []
-        main_alternative = self._ancestor.render_nodes(self._node["branches"][0]["body"])
-        branches = []
-        else_info = {}
+        branches = {
+            "if": {
+                "id": self._node["branches"][0]["id"],
+                "condition": self._node["branches"][0]["cond"]["name"],
+                "body": self._ancestor.render_nodes(
+                    self._node["branches"][0]["body"], tabs=tabs.up()
+                ),
+                "expr_id": self._node["branches"][0]["cond"]["id"],
+                "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
+                "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY,
+                "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE.format(
+                    self._node["branches"][0]["cond"]["name"]
+                ),
+                "act_type_play": self.ACT_TYPE_PLAY,
+                "phase_label_play": self.PHASE_LABEL_PLAY,
+                "act_play_name": self.ACT_NAME_BRANCH_TEMPLATE.format(
+                    self._node["branches"][0]["cond"]["name"]
+                ),
+                "name": self._node.get("name", ""),
+                "phase_label_stop": self.PHASE_LABEL_STOP,
+            },
+            "alternatives": [],
+        }
         for branch in self._node["branches"][1:]:
             if branch["type"] == "else":
-                else_info = {
-                    "else_alternative": self._ancestor.render_nodes(branch["body"]),
+                branches["else"] = {
+                    "body": self._ancestor.render_nodes(branch["body"], tabs=tabs.up()),
                 }
             else:
-                branches.append({
-                    "id": branch["id"],
-                    "cond": branch["cond"]["cond_name"],
-                    "body": self._ancestor.render_nodes(branch["body"]),
-                    "expr_id": branch["cond"]["id"], 
-                    "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY, 
-                    "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY, 
-                    "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE
-                })
+                branches["alternatives"].append(
+                    {
+                        "id": branch["id"],
+                        "condition": branch["cond"]["name"],
+                        "body": self._ancestor.render_nodes(
+                            branch["body"], tabs=tabs.up()
+                        ),
+                        "expr_id": branch["cond"]["id"],
+                        "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
+                        "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY,
+                        "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE,
+                        "act_type_play": self.ACT_TYPE_PLAY,
+                        "phase_label_play": self.PHASE_LABEL_PLAY,
+                        "act_play_name": self.ACT_NAME_BRANCH_TEMPLATE.format(
+                            branch["cond"]["name"]
+                        ),
+                        "phase_label_stop": self.PHASE_LABEL_STOP,
+                    }
+                )
         return template.render(
             {
                 "id": self._node["id"],
                 "tabs": tabs,
-                "alternatives": branches,
-                "main_condition": self._node["branches"][0]["cond"]["cond_name"],
-                "main_alternative": main_alternative,
+                "branch": branches,
                 "act_type_play": self.ACT_TYPE_PLAY,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
                 "act_play_name": self.ACT_NAME_PLAY_TEMPLATE.format(
-                    self._node["name"]
+                    self._node.get("name", "")
                 ),
+                "name": self._node.get("name"),
                 "phase_label_stop": self.PHASE_LABEL_STOP,
-                "expr_id": self._node["branches"][0]["cond"]["id"], 
-                "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY, 
-                "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY, 
-                "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE
             }
         )
 
@@ -112,6 +137,7 @@ class StatementRenderer(AbstractEntityRenderer):
                 "act_name": self.ACT_NAME_TEMPLATE.get(self._node["type"]).format(
                     self._node["name"]
                 ),
+                "name": self._node["name"],
             }
         )
 
@@ -143,9 +169,11 @@ class JSON2HtmlBuilder:
         "break": "keyword_statement",
         "return": "keyword_statement",
         "continue": "keyword_statement",
+        "alternative": "alternative",
     }
 
     type2renderer = {
+        "alternative": AlternativeRenderer,
         "func": FunctionRenderer,
         "stmt": StatementRenderer,
         "break": StatementRenderer,

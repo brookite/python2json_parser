@@ -2,5 +2,5 @@
 {% from 'utils/tabs.html' import insert_tabs %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}
-    {{ play_button(id, act_type_play, phase_label_play, act_name) }}{{stmt}}
+    {{ play_button(id, act_type_play, phase_label_play, act_name) }}<span class="variable">{{stmt}}</span>
 </div>
