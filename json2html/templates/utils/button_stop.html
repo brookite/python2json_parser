@@ -1,4 +1,5 @@
 {% macro stop_button(id, phase_label_stop, act_name) -%}
+{% if with_button %}
 <span   class="alg_button" 
         algorithm_element_id="{{id}}" 
         id="answer_finished:{{id}}" 
@@ -9,4 +10,5 @@
         data-position="top left"
         data-placement="top"
 ><i class="stop small icon"></i></span>
+{% endif %}
 {%- endmacro %}

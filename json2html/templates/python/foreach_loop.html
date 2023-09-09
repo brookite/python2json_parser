@@ -1,5 +1,5 @@
-{% from 'utils/button_play.html' import play_button %}
-{% from 'utils/button_stop.html' import stop_button %}
+{% from 'utils/button_play.html' import play_button with context %}
+{% from 'utils/button_stop.html' import stop_button with context %}
 {% from 'structures/comment.html' import make_comment %}
 {% from 'utils/tabs.html' import insert_tabs %}
 {% from 'utils/block_body.html' import insert_block %}
@@ -7,8 +7,8 @@
     {{ insert_tabs(tabs) }}
     {{ play_button(id, act_type_play, phase_label_play, act_name) }}<span class="keyword">for</span>
     {{ stop_button(id, phase_label_stop, act_name) }}
-     <span class="variable">{{variable}}</span> in <span class="variable">range({{start}}, {{stop}}, {{step}})</span>:
-      {{ make_comment(name) }}
+     <span class="variable">{{variable}}</span> in <span class="variable">container</span>:
+     {{ make_comment(name) }}
     {{ play_button(seq_id, act_type_play, phase_label_play, act_iter_name) }}
 </div>
 {{ insert_block(loop_body, tabs) }}

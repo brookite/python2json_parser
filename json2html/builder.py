@@ -251,7 +251,7 @@ class FunctionRenderer(AbstractEntityRenderer):
         )
 
 
-class JSON2HtmlBuilder:
+class PythonJSON2HtmlBuilder:
     type2template = {
         "stmt": "stmt",
         "func": "function",
@@ -282,7 +282,7 @@ class JSON2HtmlBuilder:
         self.env = Environment(loader=file_loader)
 
     def get_template(self, node_type):
-        return self.env.get_template(f"structures/{self.type2template[node_type]}.html")
+        return self.env.get_template(f"python/{self.type2template[node_type]}.html")
 
     def get_renderer(self, node) -> AbstractEntityRenderer:
         if renderer := self.type2renderer.get(node["type"]):
@@ -316,7 +316,7 @@ def main():
     with open(args.input, "rb") as fobj:
         data = fobj.read()
     object = json.loads(data)
-    builder = JSON2HtmlBuilder()
+    builder = PythonJSON2HtmlBuilder()
     print(builder.build(object))
 
 

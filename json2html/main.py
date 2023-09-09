@@ -1,4 +1,4 @@
-import builder
+import parser
 import argparse
 import json
 
@@ -12,8 +12,8 @@ def main():
     args = argument_parser.parse_args()
     with open(args.input, "rb") as fobj:
         data = fobj.read()
-    parser = builder.Python2JSONParser(data)
-    result = parser.parse_all()
+    parser_ins = parser.Python2JSONParser(data)
+    result = parser_ins.parse_all()
     print(json.dumps(result, ensure_ascii=False, indent=True))
 
 

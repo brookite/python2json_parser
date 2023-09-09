@@ -2,8 +2,8 @@ from tree_sitter import Language, Parser, Node
 from abc import ABC, abstractmethod
 from typing import Optional, Tuple, List
 
-Language.build_library("build/treesitter.so", ["tree-sitter-python/"])
-PY_LANGUAGE = Language("build/treesitter.so", "python")
+Language.build_library("../build/treesitter.so", ["../tree-sitter-python/"])
+PY_LANGUAGE = Language("../build/treesitter.so", "python")
 
 parser = Parser()
 parser.set_language(PY_LANGUAGE)
