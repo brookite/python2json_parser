@@ -1,0 +1,14 @@
+{% macro stepinto_button(id, act_type, phase_label, act_name) -%}
+{% if with_buttons %}
+<span   class="alg_button"
+        algorithm_element_id="{{id}}"
+        id="answer_{{act_type}}:{{id}}"
+        act_type="{{act_type}}"
+        data-tooltip="{{phase_label}} {{act_name}}"
+        data-toggle="tooltip"
+        title="{{phase_label}} {{act_name}}"
+        data-position="top left"
+        data-placement="top"
+><i class="step_into small icon"></i></span>
+{% endif %}
+{%- endmacro %}

@@ -1,0 +1,14 @@
+{% macro stepout_button(id, phase_label, act_name) -%}
+{% if with_buttons %}
+<span   class="alg_button"
+        algorithm_element_id="{{id}}"
+        id="answer_finished:{{id}}"
+        act_type="finished"
+        data-tooltip="{{phase_label_stop}} {{act_name}}"
+        data-toggle="tooltip"
+        title="{{phase_label_stop}} {{act_name}}"
+        data-position="top left"
+        data-placement="top"
+><i class="step_out small icon"></i></span>
+{% endif %}
+{%- endmacro %}

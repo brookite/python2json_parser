@@ -51,7 +51,9 @@ class AbstractExpressionParser(AbstractEntityParser):
         for func_name, func_node in function_calls_nodes:
             if function := self._parser.find_function(func_name)[1]:
                 function_calls.append(
-                    FunctionCallParser(func_node, self._parser).parse(function)
+                    FunctionCallParser(func_node, self._parser).parse(
+                        function, self._node.text.decode("utf-8")
+                    )
                 )
         return function_calls
 
@@ -76,7 +78,7 @@ class StatementParser(AbstractExpressionParser):
 
 
 class FunctionCallParser(AbstractEntityParser):
-    def parse(self, function, *args, **kwargs) -> Optional[dict]:
+    def parse(self, function, call_expr, *args, **kwargs) -> Optional[dict]:
         result = {
             "id": self._parser.get_new_id(),
             "type": "func_call",
@@ -86,6 +88,10 @@ class FunctionCallParser(AbstractEntityParser):
             "func_id": function["id"],
             "func_args": [],
         }
+        result["position"] = [
+            self._node.start_point[1] - len(result["func_name"]),
+            self._node.end_point[1],
+        ]
         args = self._node.child_by_field_name("arguments").named_children
         for arg in args:
             result["func_args"].append(arg.text.decode("utf-8"))

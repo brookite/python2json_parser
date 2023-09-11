@@ -54,8 +54,9 @@ class AlternativeRenderer(AbstractEntityRenderer):
                 "id": self._node["branches"][0]["id"],
                 "condition": self._node["branches"][0]["cond"]["name"],
                 "body": self._ancestor.render_nodes(
-                    self._node["branches"][0]["body"], tabs=tabs.up(),
-                    with_buttons=with_buttons
+                    self._node["branches"][0]["body"],
+                    tabs=tabs.up(),
+                    with_buttons=with_buttons,
                 ),
                 "expr_id": self._node["branches"][0]["cond"]["id"],
                 "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
@@ -76,8 +77,9 @@ class AlternativeRenderer(AbstractEntityRenderer):
         for branch in self._node["branches"][1:]:
             if branch["type"] == "else":
                 branches["else"] = {
-                    "body": self._ancestor.render_nodes(branch["body"], tabs=tabs.up(), 
-                        with_buttons=with_buttons),
+                    "body": self._ancestor.render_nodes(
+                        branch["body"], tabs=tabs.up(), with_buttons=with_buttons
+                    ),
                     "act_type_play": self.ACT_TYPE_PLAY,
                     "phase_label_play": self.PHASE_LABEL_PLAY,
                     "act_play_name": self.ACT_NAME_ELSE_TEMPLATE,
@@ -89,8 +91,7 @@ class AlternativeRenderer(AbstractEntityRenderer):
                         "id": branch["id"],
                         "condition": branch["cond"]["name"],
                         "body": self._ancestor.render_nodes(
-                            branch["body"], tabs=tabs.up(),
-                            with_buttons=with_buttons
+                            branch["body"], tabs=tabs.up(), with_buttons=with_buttons
                         ),
                         "expr_id": branch["cond"]["id"],
                         "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
@@ -160,8 +161,9 @@ class ForLoopRenderer(AbstractEntityRenderer):
                 ),
                 "name": self._node.get("name", ""),
                 "loop_body": self._ancestor.render_nodes(
-                    self._node["body"]["body"], tabs=tabs.up(),
-                    with_buttons=with_buttons
+                    self._node["body"]["body"],
+                    tabs=tabs.up(),
+                    with_buttons=with_buttons,
                 ),
                 **extend,
             }
@@ -196,8 +198,9 @@ class WhileLoopRenderer(AbstractEntityRenderer):
                 ),
                 "name": self._node.get("name", ""),
                 "loop_body": self._ancestor.render_nodes(
-                    self._node["body"]["body"], tabs=tabs.up(),
-                    with_buttons=with_buttons
+                    self._node["body"]["body"],
+                    tabs=tabs.up(),
+                    with_buttons=with_buttons,
                 ),
                 "condition": self._node["cond"]["name"],
                 "expr_id": self._node["cond"]["id"],
@@ -212,25 +215,59 @@ class WhileLoopRenderer(AbstractEntityRenderer):
 
 class StatementRenderer(AbstractEntityRenderer):
     PHASE_LABEL_PLAY = "Выполнится"
-    ACT_TYPE_PLAY = "performed"
+    PHASE_LABEL_STOP = "Закончится"
+    ACT_TYPE = "performed"
     ACT_NAME_TEMPLATE = {
         "break": "остановка цикла",
         "return": "возврат",
         "continue": "переход к следующей итерации цикла",
         "stmt": "действие `{}`",
+        "func_call": "вызов функции `{}` с аргументами `{}`",
     }
 
     def render_html(self, *args, **kwargs) -> str:
         stmt = self._node["name"]
         tabs = kwargs.get("tabs", "")
         template = self._ancestor.get_template(self._node["type"])
+        func_calls = self._node["func_calls"]
+        func_calls.sort(key=lambda x: x["position"][0])
+        new_stmt = ""
+        func_call_template = self._ancestor.get_template("func_call")
+        prev_end = 0
+        for i, func_call in enumerate(func_calls):
+            start = func_call["position"][0]
+            end = func_call["position"][1]
+            text = func_call_template.render(
+                {
+                    "with_buttons": kwargs.get("with_buttons", True),
+                    "id": func_call["id"],
+                    "act_type_stepinto": self.ACT_TYPE,
+                    "phase_label_stepinto": self.PHASE_LABEL_PLAY,
+                    "phase_label_stepout": self.PHASE_LABEL_STOP,
+                    "act_name": self.ACT_NAME_TEMPLATE["func_call"].format(
+                        func_call["func_name"], ",".join(func_call["func_args"])
+                    ),
+                    "function_name": func_call["func_name"],
+                    "arguments": ", ".join(func_call["func_args"]),
+                }
+            )
+            if i + 1 < len(func_calls):
+                next_start = func_calls[i + 1]["position"][0]
+                next_end = func_calls[i + 1]["position"][1]
+                new_stmt += stmt[:start] + text + stmt[end:next_start]
+                prev_end = end
+            else:
+                new_stmt += stmt[prev_end:start] + text + stmt[end : len(stmt)]
+        if not new_stmt:
+            new_stmt = stmt
+
         return template.render(
             {
                 "with_buttons": kwargs.get("with_buttons", True),
                 "id": self._node["id"],
                 "tabs": tabs,
-                "stmt": stmt,
-                "act_type_play": self.ACT_TYPE_PLAY,
+                "stmt": new_stmt,
+                "act_type_play": self.ACT_TYPE,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
                 "act_name": self.ACT_NAME_TEMPLATE.get(self._node["type"]).format(
                     self._node["name"]
@@ -274,6 +311,7 @@ class PythonJSON2HtmlBuilder:
         "for_loop": "for_loop",
         "foreach_loop": "foreach_loop",
         "while_loop": "while_loop",
+        "func_call": "function_call",
     }
 
     type2renderer = {
@@ -304,8 +342,7 @@ class PythonJSON2HtmlBuilder:
         html = ""
         for element in nodes:
             if renderer := self.get_renderer(element):
-                html += renderer.render_html(
-                    tabs=tabs, with_buttons=with_buttons)
+                html += renderer.render_html(tabs=tabs, with_buttons=with_buttons)
         return html
 
     def build(self, object, with_buttons=True) -> str:
@@ -313,10 +350,12 @@ class PythonJSON2HtmlBuilder:
         tabs = Tab(0)
         for function in object["functions"]:
             if renderer := self.get_renderer(function):
-                functions.append(renderer.render_html(tabs=tabs, 
-                    with_buttons=with_buttons))
-        global_html = self.render_nodes(object["global_code"]["body"],
-            tabs=tabs, with_buttons=with_buttons)
+                functions.append(
+                    renderer.render_html(tabs=tabs, with_buttons=with_buttons)
+                )
+        global_html = self.render_nodes(
+            object["global_code"]["body"], tabs=tabs, with_buttons=with_buttons
+        )
         return self.env.get_template("document.html").render(
             {"global_code": global_html, "functions": functions}
         )
