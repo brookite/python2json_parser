@@ -215,7 +215,7 @@ class WhileLoopRenderer(AbstractEntityRenderer):
 
 class StatementRenderer(AbstractEntityRenderer):
     PHASE_LABEL_PLAY = "Выполнится"
-    PHASE_LABEL_STOP = "Закончится"
+    PHASE_LABEL_STOP = "Завершится"
     ACT_TYPE = "performed"
     ACT_NAME_TEMPLATE = {
         "break": "остановка цикла",
