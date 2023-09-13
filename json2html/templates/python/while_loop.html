@@ -5,8 +5,8 @@
 {% from 'utils/block_body.html' import insert_block %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}
-    {{ play_button(id, act_type_play, phase_label_play, act_name) }}<span class="keyword">while</span>
-    {{ stop_button(id, phase_label_stop, act_name) }}
+    {{ play_button(id, act_type_play, phase_label_play, act_name) }}<span class="keyword">while</span>{#
+     #}{{ stop_button(id, phase_label_stop, act_name) }}
     ({{ play_button(expr_id, expr_act_type_play, expr_phase_label_play, expr_act_name) }}<span class="variable">{{condition}}</span>):  {{ make_comment(name) }}
     {{ play_button(seq_id, act_type_play, phase_label_play, act_iter_name) }}
 </div>
