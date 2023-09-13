@@ -4,6 +4,7 @@ import os
 
 
 class Tab:
+    '''Immutable HTML indentiation consisting of 4*level non-breaking spaces (&nbsp;).'''
     def __init__(self, level: int):
         if level < 0:
             level = 0

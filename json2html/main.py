@@ -12,9 +12,10 @@ def main():
     args = argument_parser.parse_args()
     with open(args.input, "rb") as fobj:
         data = fobj.read()
-    object = json.loads(data)
+    obj = json.loads(data)
     builder = PythonJSON2HtmlBuilder()
-    print(builder.build(object))
+    html = builder.build(obj)
+    print(html)
 
 
 if __name__ == "__main__":
