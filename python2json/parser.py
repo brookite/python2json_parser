@@ -60,12 +60,16 @@ class AbstractExpressionParser(AbstractEntityParser):
 
 class StatementParser(AbstractExpressionParser):
     def parse(self, *args, **kwargs) -> Optional[dict]:
+        function_calls = self.parse_function_calls()
+
         if self._node.type == "break_statement":
             type = "break"
         elif self._node.type == "continue_statement":
             type = "continue"
         elif self._node.type == "return_statement":
             type = "return"
+        elif len(function_calls):
+            type = "stmt_with_calls"
         else:
             type = "stmt"
 
@@ -73,7 +77,7 @@ class StatementParser(AbstractExpressionParser):
             "id": self._parser.get_new_id(),
             "type": type,
             "name": self._node.text.decode("utf-8"),
-            "func_calls": self.parse_function_calls(),
+            "func_calls": function_calls,
         }
 
 

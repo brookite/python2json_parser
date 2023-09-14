@@ -4,7 +4,8 @@ import os
 
 
 class Tab:
-    '''Immutable HTML indentiation consisting of 4*level non-breaking spaces (&nbsp;).'''
+    """Immutable HTML indentiation consisting of 4*level non-breaking spaces (&nbsp;)."""
+
     def __init__(self, level: int):
         if level < 0:
             level = 0
@@ -137,9 +138,9 @@ class ForLoopRenderer(AbstractEntityRenderer):
         tabs = kwargs.get("tabs", "")
         template = self._ancestor.get_template(self._node["type"])
         if self._node["type"] == "for_loop":
-            start = int(self._node["init"].split("=")[1])
-            stop = int(self._node["cond"].split("<")[1])
-            step = int(self._node["update"].split("+=")[1])
+            start = self._node["init"].split("=")[1]
+            stop = self._node["cond"].split("<")[1]
+            step = self._node["update"].split("+=")[1]
             extend = {
                 "start": start,
                 "stop": stop,
@@ -223,13 +224,12 @@ class StatementRenderer(AbstractEntityRenderer):
         "return": "возврат",
         "continue": "переход к следующей итерации цикла",
         "stmt": "действие `{}`",
+        "stmt_with_calls": "действие `{}`",
         "func_call": "вызов функции `{}` с аргументами `{}`",
     }
 
-    def render_html(self, *args, **kwargs) -> str:
+    def form_stmt(self, with_buttons):
         stmt = self._node["name"]
-        tabs = kwargs.get("tabs", "")
-        template = self._ancestor.get_template(self._node["type"])
         func_calls = self._node["func_calls"]
         func_calls.sort(key=lambda x: x["position"][0])
         new_stmt = ""
@@ -240,7 +240,7 @@ class StatementRenderer(AbstractEntityRenderer):
             end = func_call["position"][1]
             text = func_call_template.render(
                 {
-                    "with_buttons": kwargs.get("with_buttons", True),
+                    "with_buttons": with_buttons,
                     "id": func_call["id"],
                     "act_type_stepinto": self.ACT_TYPE,
                     "phase_label_stepinto": self.PHASE_LABEL_PLAY,
@@ -261,19 +261,26 @@ class StatementRenderer(AbstractEntityRenderer):
                 new_stmt += stmt[prev_end:start] + text + stmt[end : len(stmt)]
         if not new_stmt:
             new_stmt = stmt
+        return new_stmt
+
+    def render_html(self, *args, **kwargs) -> str:
+        tabs = kwargs.get("tabs", "")
+        template = self._ancestor.get_template(self._node["type"])
 
         return template.render(
             {
+                "stmt_with_calls": bool(len(self._node["func_calls"])),
                 "with_buttons": kwargs.get("with_buttons", True),
                 "id": self._node["id"],
                 "tabs": tabs,
-                "stmt": new_stmt,
+                "stmt": self.form_stmt(with_buttons=kwargs.get("with_buttons", True)),
                 "act_type_play": self.ACT_TYPE,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
                 "act_name": self.ACT_NAME_TEMPLATE.get(self._node["type"]).format(
                     self._node["name"]
                 ),
                 "name": self._node["name"],
+                "phase_label_stop": self.PHASE_LABEL_STOP,
             }
         )
 
@@ -304,6 +311,7 @@ class FunctionRenderer(AbstractEntityRenderer):
 class PythonJSON2HtmlBuilder:
     type2template = {
         "stmt": "stmt",
+        "stmt_with_calls": "stmt",
         "func": "function",
         "break": "keyword_statement",
         "return": "keyword_statement",
@@ -318,6 +326,7 @@ class PythonJSON2HtmlBuilder:
     type2renderer = {
         "alternative": AlternativeRenderer,
         "func": FunctionRenderer,
+        "stmt_with_calls": StatementRenderer,
         "stmt": StatementRenderer,
         "break": StatementRenderer,
         "return": StatementRenderer,

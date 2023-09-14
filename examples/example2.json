@@ -123,7 +123,7 @@
     "id": 20,
     "variable": "i",
     "body": {
-     "id": 29,
+     "id": 30,
      "type": "sequence",
      "name": "for-name_loop_body",
      "body": [
@@ -134,12 +134,12 @@
        "func_calls": []
       },
       {
-       "id": 22,
-       "type": "stmt",
+       "id": 23,
+       "type": "stmt_with_calls",
        "name": "func(1, 10)",
        "func_calls": [
         {
-         "id": 23,
+         "id": 22,
          "type": "func_call",
          "func_name": "func",
          "func_id": 2,
@@ -155,12 +155,12 @@
        ]
       },
       {
-       "id": 24,
-       "type": "stmt",
+       "id": 25,
+       "type": "stmt_with_calls",
        "name": "x = func(1, 10)",
        "func_calls": [
         {
-         "id": 25,
+         "id": 24,
          "type": "func_call",
          "func_name": "func",
          "func_id": 2,
@@ -176,12 +176,12 @@
        ]
       },
       {
-       "id": 26,
-       "type": "stmt",
-       "name": "y = func(1, 10) + 5 * 42 << 5 + func(2, 20)",
+       "id": 29,
+       "type": "stmt_with_calls",
+       "name": "y = func(1, 10) + 5 * 42 << 5 + func(func(1, 1), 20)",
        "func_calls": [
         {
-         "id": 27,
+         "id": 26,
          "type": "func_call",
          "func_name": "func",
          "func_id": 2,
@@ -195,17 +195,31 @@
          ]
         },
         {
+         "id": 27,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          "func(1, 1)",
+          "20"
+         ],
+         "position": [
+          32,
+          56
+         ]
+        },
+        {
          "id": 28,
          "type": "func_call",
          "func_name": "func",
          "func_id": 2,
          "func_args": [
-          "2",
-          "20"
+          "1",
+          "1"
          ],
          "position": [
-          32,
-          47
+          37,
+          51
          ]
         }
        ]
@@ -219,19 +233,57 @@
     "name": "for-name"
    },
    {
-    "id": 30,
+    "id": 31,
     "type": "stmt",
     "name": "lst = []",
     "func_calls": []
    },
    {
-    "id": 31,
+    "id": 32,
     "variable": "x",
     "body": {
-     "id": 32,
+     "id": 33,
      "type": "sequence",
-     "name": "31_loop_body",
+     "name": "for-each-name_loop_body",
      "body": []
+    },
+    "container": "lst",
+    "type": "foreach_loop",
+    "init": "x=lst.first()",
+    "cond": "x!=lst.last()",
+    "update": "x=next(lst, x)",
+    "name": "for-each-name"
+   },
+   {
+    "id": 34,
+    "variable": "x",
+    "body": {
+     "id": 37,
+     "type": "sequence",
+     "name": "34_loop_body",
+     "body": [
+      {
+       "id": 36,
+       "type": "stmt_with_calls",
+       "name": "a = 5 + func(x, 3)",
+       "func_calls": [
+        {
+         "id": 35,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          "x",
+          "3"
+         ],
+         "position": [
+          8,
+          22
+         ]
+        }
+       ]
+      }
+     ]
     },
     "container": "lst",
     "type": "foreach_loop",
@@ -240,7 +292,45 @@
     "update": "x=next(lst, x)"
    },
    {
-    "id": 33,
+    "id": 38,
+    "variable": "i",
+    "body": {
+     "id": 40,
+     "type": "sequence",
+     "name": "38_loop_body",
+     "body": [
+      {
+       "id": 39,
+       "type": "stmt",
+       "name": "i += 1",
+       "func_calls": []
+      }
+     ]
+    },
+    "type": "for_loop",
+    "init": "i=1",
+    "cond": "i<4 * a",
+    "update": "i+=a"
+   },
+   {
+    "id": 41,
+    "type": "alternative",
+    "branches": [
+     {
+      "id": 42,
+      "type": "if",
+      "body": [],
+      "cond": {
+       "id": 43,
+       "type": "expr",
+       "name": "\"emptyname_condition\"",
+       "func_calls": []
+      }
+     }
+    ]
+   },
+   {
+    "id": 44,
     "type": "stmt",
     "name": "print(\"Call function\")",
     "func_calls": []
