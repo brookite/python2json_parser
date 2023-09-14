@@ -1,0 +1,19 @@
+<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with SVG Editor - http://github.com/mzalive/SVG Editor/ -->
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="18" width="18" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g stroke="null" id="svg_10">
+   <g stroke="null" id="svg_6">
+    <path stroke="null" stroke-width="0" id="svg_4" d="m1.812853,-1.790666l12.373013,0l0,12.373013l-12.373013,0l0,-12.373013z" fill="none"/>
+    <path stroke="null" stroke-width="0" id="svg_5" d="m8.51485,2.24522l0,6.274958l-1.031084,0l0,-6.274958l-2.765374,2.765353l-0.729085,-0.72908l4.010001,-4.009991l4.009939,4.009991l-0.72908,0.72908l-2.765317,-2.765353z"/>
+   </g>
+   <text stroke="null" transform="matrix(0.09326236581631525,0,0,0.09326236581631525,4.15923768102089,-22.674027121746846) " font-style="normal" font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Courier New', Courier, monospace" font-size="128" id="svg_7" y="393.148993" x="-35.636754" fill-opacity="null" stroke-opacity="null" stroke-width="0" fill="#000000">{}</text>
+   <rect stroke="null" id="svg_9" height="2.8465" width="1.028525" y="8.2478" x="7.485097" stroke-width="8" fill="#000000"/>
+  </g>
+ </g>
+</svg>

@@ -127,6 +127,7 @@ class ForLoopRenderer(AbstractEntityRenderer):
                 "tabs": tabs,
                 "act_type_play": self.ACT_TYPE_PLAY,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
+                "phase_label_stop": self.PHASE_LABEL_STOP,
                 "act_name": self.ACT_NAME_TEMPLATE.format(
                     html_quote_escape(self._node.get("name", ""))
                 ),
@@ -166,6 +167,8 @@ class WhileLoopRenderer(AbstractEntityRenderer):
                 "tabs": tabs,
                 "act_type_play": self.ACT_TYPE_PLAY,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
+                "phase_label_stop": self.PHASE_LABEL_STOP,
+                "act_name": self.ACT_NAME_TEMPLATE.format(self._node.get("name", "")),
                 "act_name": self.ACT_NAME_TEMPLATE.format(
                     html_quote_escape(self._node.get("name", ""))
                 ),
