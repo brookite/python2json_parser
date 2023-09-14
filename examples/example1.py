@@ -18,10 +18,20 @@ for i in range(1, 5, 1):  # for-name
     print(i)
     func(1, 10)
     x = func(1, 10)
-    y = func(1, 10) + 5 * 42 << 5 + func(2, 20)
+    y = func(1, 10) + 5 * 42 << 5 + func(func(1, 1), 20)
 
 lst = []
+for x in lst:  # for-each-name
+    pass
+
+# blocks without name
 for x in lst:
+    a = 5 + func(x, 3)
+
+for i in range(1, 4 * a, a):
+    i += 1
+
+if "emptyname_condition":
     pass
 
 print("Call function")
