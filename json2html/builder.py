@@ -1,27 +1,7 @@
 from jinja2 import FileSystemLoader, Environment
 from abc import ABC, abstractmethod
 import os
-
-
-class Tab:
-    """Immutable HTML indentiation consisting of 4*level non-breaking spaces (&nbsp;)."""
-
-    def __init__(self, level: int):
-        if level < 0:
-            level = 0
-        self._level = level
-
-    def up(self):
-        return Tab(self._level + 1)
-
-    def down(self):
-        return Tab(self._level - 1)
-
-    def __bool__(self):
-        return self._level != 0
-
-    def __str__(self):
-        return self._level * ("&nbsp;" * 4)
+from utils import Tab, html_quote_escape
 
 
 class AbstractEntityRenderer(ABC):
@@ -64,12 +44,12 @@ class AlternativeRenderer(AbstractEntityRenderer):
                 "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
                 "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY,
                 "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE.format(
-                    self._node["branches"][0]["cond"]["name"]
+                    html_quote_escape(self._node["branches"][0]["cond"]["name"])
                 ),
                 "act_type_play": self.ACT_TYPE_PLAY,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
                 "act_play_name": self.ACT_NAME_BRANCH_TEMPLATE.format(
-                    self._node["branches"][0]["cond"]["name"]
+                    html_quote_escape(self._node["branches"][0]["cond"]["name"])
                 ),
                 "name": self._node.get("name", ""),
                 "phase_label_stop": self.PHASE_LABEL_STOP,
@@ -99,12 +79,12 @@ class AlternativeRenderer(AbstractEntityRenderer):
                         "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
                         "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY,
                         "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE.format(
-                            branch["cond"]["name"]
+                            html_quote_escape(branch["cond"]["name"])
                         ),
                         "act_type_play": self.ACT_TYPE_PLAY,
                         "phase_label_play": self.PHASE_LABEL_PLAY,
                         "act_play_name": self.ACT_NAME_BRANCH_TEMPLATE.format(
-                            branch["cond"]["name"]
+                            html_quote_escape(branch["cond"]["name"])
                         ),
                         "phase_label_stop": self.PHASE_LABEL_STOP,
                     }
@@ -118,7 +98,7 @@ class AlternativeRenderer(AbstractEntityRenderer):
                 "act_type_play": self.ACT_TYPE_PLAY,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
                 "act_play_name": self.ACT_NAME_PLAY_TEMPLATE.format(
-                    self._node.get("name", "")
+                    html_quote_escape(self._node.get("name", ""))
                 ),
                 "name": self._node.get("name"),
                 "phase_label_stop": self.PHASE_LABEL_STOP,
@@ -157,9 +137,11 @@ class ForLoopRenderer(AbstractEntityRenderer):
                 "tabs": tabs,
                 "act_type_play": self.ACT_TYPE_PLAY,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
-                "act_name": self.ACT_NAME_TEMPLATE.format(self._node.get("name", "")),
+                "act_name": self.ACT_NAME_TEMPLATE.format(
+                    html_quote_escape(self._node.get("name", ""))
+                ),
                 "act_iter_name": self.ACT_ITER_NAME_TEMPLATE.format(
-                    self._node.get("name", "")
+                    html_quote_escape(self._node.get("name", ""))
                 ),
                 "name": self._node.get("name", ""),
                 "loop_body": self._ancestor.render_nodes(
@@ -194,9 +176,11 @@ class WhileLoopRenderer(AbstractEntityRenderer):
                 "tabs": tabs,
                 "act_type_play": self.ACT_TYPE_PLAY,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
-                "act_name": self.ACT_NAME_TEMPLATE.format(self._node.get("name", "")),
+                "act_name": self.ACT_NAME_TEMPLATE.format(
+                    html_quote_escape(self._node.get("name", ""))
+                ),
                 "act_iter_name": self.ACT_ITER_NAME_TEMPLATE.format(
-                    self._node.get("name", "")
+                    html_quote_escape(self._node.get("name", ""))
                 ),
                 "name": self._node.get("name", ""),
                 "loop_body": self._ancestor.render_nodes(
@@ -209,7 +193,7 @@ class WhileLoopRenderer(AbstractEntityRenderer):
                 "expr_act_type_play": self.ACT_TYPE_EXPR_PLAY,
                 "expr_phase_label_play": self.PHASE_EXPR_LABEL_PLAY,
                 "expr_act_name": self.ACT_NAME_EXPR_TEMPLATE.format(
-                    self._node["cond"]["name"]
+                    html_quote_escape(self._node["cond"]["name"])
                 ),
             }
         )
@@ -230,9 +214,10 @@ class StatementRenderer(AbstractEntityRenderer):
 
     def form_stmt(self, with_buttons):
         stmt = self._node["name"]
+        new_stmt = ""
+
         func_calls = self._node["func_calls"]
         func_calls.sort(key=lambda x: x["position"][0])
-        new_stmt = ""
         func_call_template = self._ancestor.get_template("func_call")
         prev_end = 0
         for i, func_call in enumerate(func_calls):
@@ -246,7 +231,8 @@ class StatementRenderer(AbstractEntityRenderer):
                     "phase_label_stepinto": self.PHASE_LABEL_PLAY,
                     "phase_label_stepout": self.PHASE_LABEL_STOP,
                     "act_name": self.ACT_NAME_TEMPLATE["func_call"].format(
-                        func_call["func_name"], ",".join(func_call["func_args"])
+                        func_call["func_name"],
+                        html_quote_escape(",".join(func_call["func_args"])),
                     ),
                     "function_name": func_call["func_name"],
                     "arguments": ", ".join(func_call["func_args"]),
@@ -277,7 +263,7 @@ class StatementRenderer(AbstractEntityRenderer):
                 "act_type_play": self.ACT_TYPE,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
                 "act_name": self.ACT_NAME_TEMPLATE.get(self._node["type"]).format(
-                    self._node["name"]
+                    html_quote_escape(self._node["name"])
                 ),
                 "name": self._node["name"],
                 "phase_label_stop": self.PHASE_LABEL_STOP,
