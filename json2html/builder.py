@@ -168,7 +168,6 @@ class WhileLoopRenderer(AbstractEntityRenderer):
                 "act_type_play": self.ACT_TYPE_PLAY,
                 "phase_label_play": self.PHASE_LABEL_PLAY,
                 "phase_label_stop": self.PHASE_LABEL_STOP,
-                "act_name": self.ACT_NAME_TEMPLATE.format(self._node.get("name", "")),
                 "act_name": self.ACT_NAME_TEMPLATE.format(
                     html_quote_escape(self._node.get("name", ""))
                 ),
