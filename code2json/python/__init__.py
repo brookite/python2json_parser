@@ -1,22 +1,13 @@
 from tree_sitter import Language, Parser, Node
-from abc import ABC, abstractmethod
 from typing import Optional, Tuple, List
+from interfaces import AbstractEntityParser, AbstractCodeParser
 
-Language.build_library("../build/treesitter.so", ["../tree-sitter-python/"])
-PY_LANGUAGE = Language("../build/treesitter.so", "python")
+
+Language.build_library("../../build/treesitter.so", ["../tree-sitter-python/"])
+PY_LANGUAGE = Language("../../build/treesitter.so", "python")
 
 parser = Parser()
 parser.set_language(PY_LANGUAGE)
-
-
-class AbstractEntityParser(ABC):
-    def __init__(self, node: Node, parser: "Python2JSONParser"):
-        self._node: Node = node
-        self._parser: "Python2JSONParser" = parser
-
-    @abstractmethod
-    def parse(self, *args, **kwargs) -> dict:
-        pass
 
 
 class SequenceParser(AbstractEntityParser):
@@ -257,7 +248,7 @@ class ForLoopParser(AbstractEntityParser):
         }
 
 
-class Python2JSONParser:
+class Python2JSONParser(AbstractCodeParser):
     TYPE_PARSER = {
         "function_definition": FunctionParser,
         "expression_statement": StatementParser,

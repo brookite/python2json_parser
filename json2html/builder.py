@@ -1,17 +1,7 @@
 from jinja2 import FileSystemLoader, Environment
-from abc import ABC, abstractmethod
 import os
 from utils import Tab, html_quote_escape
-
-
-class AbstractEntityRenderer(ABC):
-    def __init__(self, tree_node, ancestor):
-        self._node: dict = tree_node
-        self._ancestor: "JSON2HtmlBuilder" = ancestor
-
-    @abstractmethod
-    def render_html(self, *args, **kwargs) -> str:
-        pass
+from interfaces import AbstractEntityRenderer
 
 
 class AlternativeRenderer(AbstractEntityRenderer):
@@ -294,7 +284,7 @@ class FunctionRenderer(AbstractEntityRenderer):
         )
 
 
-class PythonJSON2HtmlBuilder:
+class JSON2HtmlBuilder:
     type2template = {
         "stmt": "stmt",
         "stmt_with_calls": "stmt",
@@ -322,13 +312,16 @@ class PythonJSON2HtmlBuilder:
         "while_loop": WhileLoopRenderer,
     }
 
-    def __init__(self):
+    def __init__(self, lang):
         directory = os.path.dirname(__file__)
+        self.lang = lang
         file_loader = FileSystemLoader(os.path.join(directory, "templates"))
         self.env = Environment(loader=file_loader)
 
     def get_template(self, node_type):
-        return self.env.get_template(f"python/{self.type2template[node_type]}.html")
+        return self.env.get_template(
+            f"{self.lang}/{self.type2template[node_type]}.html"
+        )
 
     def get_renderer(self, node) -> AbstractEntityRenderer:
         if renderer := self.type2renderer.get(node["type"]):
