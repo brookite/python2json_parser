@@ -13,6 +13,7 @@
 
 ### Установка
 ```commandline
+git clone --recursive https://github.com/brookite/python2json_parser
 python -m pip install -r requirements.txt
 ```
 
