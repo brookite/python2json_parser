@@ -1,10 +1,12 @@
+from sympy import resultant
 from tree_sitter import Language, Parser, Node
-from typing import Optional, Tuple, List
+from typing import Dict, Optional, Tuple, List
 from interfaces import AbstractEntityParser, AbstractCodeParser
+import os.path
 
-
-Language.build_library("../../build/treesitter.so", ["../tree-sitter-python/"])
-PY_LANGUAGE = Language("../../build/treesitter.so", "python")
+directory = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+Language.build_library(os.path.join(directory, "build", "treesitter.so"), [os.path.join(directory, "tree-sitter-python")])
+PY_LANGUAGE = Language(os.path.join(directory, "build", "treesitter.so"), "python")
 
 parser = Parser()
 parser.set_language(PY_LANGUAGE)
@@ -25,33 +27,43 @@ class SequenceParser(AbstractEntityParser):
 
 
 class AbstractExpressionParser(AbstractEntityParser):
-    def find_function_calls(self) -> List[Tuple[str, Node]]:
-        children = [self._node]
+    def find_function_calls(self, parent_node) -> Dict:
+        children = [parent_node]
         result = []
         while len(children):
             node = children.pop(0)
             if node.type == "call":
                 name = node.child_by_field_name("function").text.decode("utf-8")
-                result.append((name, node))
-            children.extend(node.children)
+                args = self.parse_func_args(node.child_by_field_name("arguments"))
+                if function := self._parser.find_function(name)[1]:
+                    result.append(
+                        FunctionCallParser(node, self._parser).parse(
+                            function, args, self._node.text.decode("utf-8")
+                        )
+                    )
+                if node == parent_node:
+                    children.extend(node.children)
+            else:
+                children.extend(node.children)
         return result
 
-    def parse_function_calls(self):
-        function_calls_nodes = self.find_function_calls()
-        function_calls = []
-        for func_name, func_node in function_calls_nodes:
-            if function := self._parser.find_function(func_name)[1]:
-                function_calls.append(
-                    FunctionCallParser(func_node, self._parser).parse(
-                        function, self._node.text.decode("utf-8")
-                    )
-                )
-        return function_calls
+    def parse_func_args(self, args) -> List[Dict]:
+        children = [args]
+        result = []
+        while len(children):
+            node = children.pop(0)
+            if node.type == "call":
+                result.append(self.find_function_calls(node)[0])
+            else:
+                if node.type != "argument_list":
+                    result.append({"type": "argument", "name": node.text.decode("utf-8")})
+                children.extend(node.named_children)
+        return result
 
 
 class StatementParser(AbstractExpressionParser):
     def parse(self, *args, **kwargs) -> Optional[dict]:
-        function_calls = self.parse_function_calls()
+        function_calls = self.find_function_calls(self._node)
 
         if self._node.type == "break_statement":
             type = "break"
@@ -73,7 +85,7 @@ class StatementParser(AbstractExpressionParser):
 
 
 class FunctionCallParser(AbstractEntityParser):
-    def parse(self, function, call_expr, *args, **kwargs) -> Optional[dict]:
+    def parse(self, function, arguments, call_expr, *args, **kwargs) -> Optional[dict]:
         result = {
             "id": self._parser.get_new_id(),
             "type": "func_call",
@@ -81,15 +93,14 @@ class FunctionCallParser(AbstractEntityParser):
                 "utf-8"
             ),
             "func_id": function["id"],
-            "func_args": [],
+            "func_args": arguments,
         }
         result["position"] = [
             self._node.start_point[1] - len(result["func_name"]),
             self._node.end_point[1],
         ]
-        args = self._node.child_by_field_name("arguments").named_children
-        for arg in args:
-            result["func_args"].append(arg.text.decode("utf-8"))
+        if result["position"][0] < 0:
+            result["position"][0] = 0
         return result
 
 
@@ -141,7 +152,7 @@ class ExpressionParser(AbstractExpressionParser):
             "id": self._parser.get_new_id(),
             "type": "expr",
             "name": self._node.text.decode("utf-8"),
-            "func_calls": self.parse_function_calls(),
+            "func_calls": self.find_function_calls(self._node),
         }
 
 

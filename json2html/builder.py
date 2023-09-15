@@ -204,10 +204,39 @@ class StatementRenderer(AbstractEntityRenderer):
         "func_call": "вызов функции `{}` с аргументами `{}`",
     }
 
+    def _build_func_args(self, func_args, func_call_template, with_buttons=True):
+        result = []
+        for arg in func_args:
+            if arg["type"] == "func_call":
+                start = arg["position"][0]
+                end = arg["position"][1]
+                args_list = self._node["name"][start + len(arg["func_name"]):end]
+                result.append(func_call_template.render(
+                    {
+                        "with_buttons": with_buttons,
+                        "id": arg["id"],
+                        "act_type_stepinto": self.ACT_TYPE,
+                        "phase_label_stepinto": self.PHASE_LABEL_PLAY,
+                        "phase_label_stepout": self.PHASE_LABEL_STOP,
+                        "act_name": self.ACT_NAME_TEMPLATE["func_call"].format(
+                            arg["func_name"],
+                            html_quote_escape(args_list)
+                        ),
+                        "function_name": arg["func_name"],
+                        "arguments": self._build_func_args(
+                            arg["func_args"], 
+                            func_call_template,
+                            with_buttons
+                        ),
+                    }
+                ))
+            else:
+                result.append(arg["name"])
+        return ", ".join(result)
+
     def form_stmt(self, with_buttons):
         stmt = self._node["name"]
         new_stmt = ""
-
         func_calls = self._node["func_calls"]
         func_calls.sort(key=lambda x: x["position"][0])
         func_call_template = self._ancestor.get_template("func_call")
@@ -215,6 +244,7 @@ class StatementRenderer(AbstractEntityRenderer):
         for i, func_call in enumerate(func_calls):
             start = func_call["position"][0]
             end = func_call["position"][1]
+            args_list = stmt[start + len(func_call["func_name"]):end]
             text = func_call_template.render(
                 {
                     "with_buttons": with_buttons,
@@ -224,17 +254,21 @@ class StatementRenderer(AbstractEntityRenderer):
                     "phase_label_stepout": self.PHASE_LABEL_STOP,
                     "act_name": self.ACT_NAME_TEMPLATE["func_call"].format(
                         func_call["func_name"],
-                        html_quote_escape(",".join(func_call["func_args"])),
+                        html_quote_escape(args_list)
                     ),
                     "function_name": func_call["func_name"],
-                    "arguments": ", ".join(func_call["func_args"]),
+                    "arguments": self._build_func_args(
+                        func_call["func_args"], 
+                        func_call_template,
+                        with_buttons
+                    ),
                 }
             )
             if i + 1 < len(func_calls):
                 next_start = func_calls[i + 1]["position"][0]
                 next_end = func_calls[i + 1]["position"][1]
-                new_stmt += stmt[:start] + text + stmt[end:next_start]
-                prev_end = end
+                new_stmt += stmt[prev_end:start] + text + stmt[end:next_start]
+                prev_end = next_start
             else:
                 new_stmt += stmt[prev_end:start] + text + stmt[end : len(stmt)]
         if not new_stmt:
@@ -280,8 +314,7 @@ class FunctionRenderer(AbstractEntityRenderer):
                 "arguments": arguments,
                 "return_type": self._node.get("return_type"),
                 "tabs": tabs,
-                "function_body": body_html,
-                "func_return_type": self._node["return_type"],
+                "function_body": body_html
             }
         )
 

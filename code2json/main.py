@@ -1,6 +1,6 @@
 import argparse
 import json
-from code2json.python.__init__ import Python2JSONParser
+from python.__init__ import Python2JSONParser
 
 
 LANGUAGES = {"python": Python2JSONParser}
