@@ -5,7 +5,5 @@
 {% from 'python/block_body.html' import insert_block %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}{{ play_button(id, act_type_play, phase_label_play, act_name) }}<span class="keyword">for</span>{{ stop_button(id, phase_label_stop, act_name) }} <span class="variable">{{variable}}</span> in <span class="variable">container</span>: {{ make_comment(name) }}
-    {{ play_button(seq_id, act_type_play, phase_label_play, act_iter_name) }}
 </div>
 {{ insert_block(loop_body, tabs) }}
-{{ stop_button(seq_id, phase_label_stop, act_iter_name) }}
