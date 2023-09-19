@@ -1,6 +1,6 @@
 {% from 'utils/tabs.html' import insert_tabs %}
 {% from 'c/block_body.html' import insert_block %}
 <div class="code-line">
-    {{ insert_tabs(tabs) }}<span class="keyword">{% if func_return_type %} -> {{ func_return_type }}{% else %}void{% endif %}</span> <span class="variable">{{ func_name }}</span>{{ arguments }}</div>
+    {{ insert_tabs(tabs) }}<span class="keyword">{% if return_type %}{{ return_type }}{% else %}void{% endif %}</span> <span class="variable">{{ func_name }}</span>{{ arguments }}</div>
 {{ insert_block(function_body, tabs) }}
 <br>
