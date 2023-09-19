@@ -1,11 +1,13 @@
-from sympy import resultant
 from tree_sitter import Language, Parser, Node
 from typing import Dict, Optional, Tuple, List
 from interfaces import AbstractEntityParser, AbstractCodeParser
 import os.path
 
 directory = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-Language.build_library(os.path.join(directory, "build", "treesitter.so"), [os.path.join(directory, "tree-sitter-python")])
+Language.build_library(
+    os.path.join(directory, "build", "treesitter.so"),
+    [os.path.join(directory, "tree-sitter-python")],
+)
 PY_LANGUAGE = Language(os.path.join(directory, "build", "treesitter.so"), "python")
 
 parser = Parser()
@@ -56,7 +58,9 @@ class AbstractExpressionParser(AbstractEntityParser):
                 result.append(self.find_function_calls(node)[0])
             else:
                 if node.type != "argument_list":
-                    result.append({"type": "argument", "name": node.text.decode("utf-8")})
+                    result.append(
+                        {"type": "argument", "name": node.text.decode("utf-8")}
+                    )
                 children.extend(node.named_children)
         return result
 
