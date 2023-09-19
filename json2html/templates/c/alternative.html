@@ -2,30 +2,25 @@
 {% from 'utils/button_stop.html' import stop_button with context %}
 {% from 'c/comment.html' import make_comment %}
 {% from 'utils/tabs.html' import insert_tabs %}
-{% from 'c/block_body.html' import insert_block %}
+{% from 'c/block_body.html' import insert_block with context %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}
     {{ play_button(id, act_type_play, phase_label_play, act_play_name) }}<span class="keyword">if</span>{#
      #}{{ stop_button(id, phase_label_stop, act_play_name) }}
     ({{ play_button(branch.if.expr_id, branch.if.expr_act_type_play, branch.if.expr_phase_label_play, branch.if.expr_act_name) }}<span class="variable">{{branch.if.condition}}</span>)
       {{ make_comment(name) }}
-    {{ play_button(branch.if.id, branch.if.act_type_play, branch.if.phase_label_play, branch.if.act_play_name) }}
 </div>
-{{ insert_block(branch.if.body, tabs) }}
-{{ stop_button(branch.if.id, branch.if.phase_label_stop, branch.if.act_play_name) }}
+{{ insert_block(branch.if.body, tabs, branch.if.id, branch.if.act_type_play, branch.if.phase_label_play, branch.if.phase_label_stop, branch.if.act_play_name) }}
 {% for alter in branch.alternatives %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}&nbsp;<span class="keyword">else if</span>
     ({{ play_button(alter.expr_id, alter.expr_act_type_play, alter.expr_phase_label_play, alter.expr_act_name) }}<span class="variable">{{ alter.condition }}</span>)
-    {{ play_button(alter.id, alter.act_type_play, alter.phase_label_play, alter.act_play_name) }}
 </div>
-{{ insert_block(alter.body, tabs) }}
-{{ stop_button(alter.id, alter.phase_label_stop, alter.act_play_name) }}
+{{ insert_block(alter.body, tabs, alter.id, alter.act_type_play, alter.phase_label_play, alter.phase_label_stop, alter.act_play_name) }}
 {% endfor %}
 {% if branch.else %}
 <div class="code-line">
-    {{ insert_tabs(tabs) }}&nbsp;<span class="keyword">else</span>{{ play_button(branch.else.id, branch.else.act_type_play, branch.else.phase_label_play, branch.else.act_play_name) }}
+    {{ insert_tabs(tabs) }}&nbsp;<span class="keyword">else</span>
 </div>
-{{ insert_block(branch.else.body, tabs) }}
-{{ stop_button(branch.else.id, branch.else.phase_label_stop, branch.else.act_play_name) }}
+{{ insert_block(branch.else.body, tabs, branch.else.id, branch.else.act_type_play, branch.else.phase_label_play, branch.else.phase_label_stop, branch.else.act_play_name) }}
 {% endif %}

@@ -8,3 +8,15 @@
         title="{{phase_label_stop}} {{act_name}}"
         data-position="top left"
         data-placement="top"><i class="stop small icon"></i></span>{% endif %}{%- endmacro %}
+
+
+{% macro stop_button_withtoggle(id, phase_label_stop, act_name, with_buttons) -%}
+{% if with_buttons %}<span class="alg_button"
+        algorithm_element_id="{{id}}"
+        id="answer_finished:{{id}}"
+        act_type="finished"
+        data-tooltip="{{phase_label_stop}} {{act_name}}"
+        data-toggle="tooltip"
+        title="{{phase_label_stop}} {{act_name}}"
+        data-position="top left"
+        data-placement="top"><i class="stop small icon"></i></span>{% endif %}{%- endmacro %}

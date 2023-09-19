@@ -8,3 +8,14 @@
         title="{{phase_label_play}} {{act_name}}"
         data-position="top left"
         data-placement="top"><i class="play small icon"></i></span>{% endif %}{%- endmacro %}
+
+{% macro play_button_withtoggle(id, act_type_play, phase_label_play, act_name, with_buttons) -%}
+{% if with_buttons %}<span class="alg_button"
+        algorithm_element_id="{{id}}"
+        id="answer_{{act_type_play}}:{{id}}"
+        act_type="{{act_type_play}}"
+        data-tooltip="{{phase_label_play}} {{act_name}}"
+        data-toggle="tooltip"
+        title="{{phase_label_play}} {{act_name}}"
+        data-position="top left"
+        data-placement="top"><i class="play small icon"></i></span>{% endif %}{%- endmacro %}
