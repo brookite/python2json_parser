@@ -1,0 +1,3 @@
+{% from 'utils/tabs.html' import insert_tabs %}
+
+{% macro insert_block(body, tabs) -%}<div class="code-line">{{ insert_tabs(tabs) }}{</div>{{ body }}<div class="code-line">{{ insert_tabs(tabs) }}{{tabs}}}</div>{%- endmacro %}

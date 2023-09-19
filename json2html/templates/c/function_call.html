@@ -1,0 +1,4 @@
+{% from 'utils/button_stepinto.html' import stepinto_button with context %}
+{% from 'utils/button_stepout.html' import stepout_button with context %}
+{% from 'utils/tabs.html' import insert_tabs %}
+{{ stepinto_button(id, act_type_stepinto, phase_label_stepinto, act_name) }}{{stmt}}<span class="variable">{{function_name}}({{arguments}})</span>{{ stepout_button(id, phase_label_stepout, act_name) }}
