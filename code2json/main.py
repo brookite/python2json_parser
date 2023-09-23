@@ -1,9 +1,10 @@
 import argparse
 import json
 from python.__init__ import Python2JSONParser
+from c.__init__ import C2JSONParser
 
 
-LANGUAGES = {"python": Python2JSONParser}
+LANGUAGES = {"python": Python2JSONParser, "c": C2JSONParser}
 
 argument_parser = argparse.ArgumentParser(
     description="Compile source code to JSON tree"
