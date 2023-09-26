@@ -1,16 +1,3 @@
-(return_statement (binary_expression left: (identifier) right: (identifier)))
-(expression_statement (call_expression function: (identifier) arguments: (argument_list (string_literal (string_content)))))
-(declaration type: (primitive_type) declarator: (identifier))
-(expression_statement (assignment_expression left: (identifier) right: (number_literal)))
-(expression_statement (assignment_expression left: (identifier) right: (number_literal)))
-(expression_statement (assignment_expression left: (identifier) right: (number_literal)))
-(expression_statement (call_expression function: (identifier) arguments: (argument_list (string_literal (string_content)))))
-(break_statement)
-(expression_statement (update_expression argument: (identifier)))
-(expression_statement (call_expression function: (identifier) arguments: (argument_list (number_literal) (number_literal))))
-(declaration type: (primitive_type) declarator: (init_declarator declarator: (identifier) value: (binary_expression left: (call_expression function: (identifier) arguments: (argument_list (number_literal) (call_expression function: (identifier) arguments: (argument_list (number_literal) (number_literal))))) right: (call_expression function: (identifier) arguments: (argument_list (number_literal) (call_expression function: (identifier) arguments: (argument_list (call_expression function: (identifier) arguments: (argument_list (number_literal) (number_literal))) (number_literal))))))))
-(declaration type: (primitive_type) declarator: (init_declarator declarator: (identifier) value: (number_literal)))
-(expression_statement (assignment_expression left: (identifier) right: (number_literal)))
 {
  "id": 1,
  "functions": [
@@ -19,280 +6,26 @@
    "type": "func",
    "name": "func",
    "param_list": [
-    "int x",
-    "int y"
+    "a",
+    "b"
    ],
    "is_entry": false,
    "return_type": "int",
    "body": {
-    "id": 4,
+    "id": 5,
     "type": "sequence",
     "name": "func-body",
     "body": [
      {
       "id": 3,
+      "type": "stmt",
+      "name": "x = 1",
+      "func_calls": []
+     },
+     {
+      "id": 4,
       "type": "return",
-      "name": "return x + y;",
-      "func_calls": []
-     }
-    ]
-   }
-  },
-  {
-   "id": 5,
-   "type": "func",
-   "name": "main",
-   "param_list": [],
-   "is_entry": true,
-   "return_type": "void",
-   "body": {
-    "id": 36,
-    "type": "sequence",
-    "name": "main-body",
-    "body": [
-     {
-      "id": 6,
-      "type": "stmt",
-      "name": "printf(\"Main function!!!1\");",
-      "func_calls": []
-     },
-     {
-      "id": 7,
-      "type": "stmt",
-      "name": "int a;",
-      "func_calls": []
-     },
-     {
-      "id": 8,
-      "type": "stmt",
-      "name": "a = 10;",
-      "func_calls": []
-     },
-     {
-      "id": 9,
-      "type": "alternative",
-      "branches": [
-       {
-        "id": 10,
-        "type": "if",
-        "body": [
-         {
-          "id": 16,
-          "type": "stmt",
-          "name": "a = 30;",
-          "func_calls": []
-         }
-        ],
-        "cond": {
-         "id": 15,
-         "type": "expr",
-         "name": "a < 100",
-         "func_calls": []
-        }
-       },
-       {
-        "id": 11,
-        "body": [
-         {
-          "id": 13,
-          "type": "stmt",
-          "name": "a = 45;",
-          "func_calls": []
-         }
-        ],
-        "type": "else-if",
-        "cond": {
-         "id": 12,
-         "type": "expr",
-         "name": "a > 5",
-         "func_calls": []
-        }
-       }
-      ]
-     },
-     {
-      "id": 17,
-      "variable": "i",
-      "body": {
-       "id": 20,
-       "type": "sequence",
-       "name": "/for-test_loop_body",
-       "body": [
-        {
-         "id": 18,
-         "type": "stmt",
-         "name": "printf(\"1\");",
-         "func_calls": []
-        },
-        {
-         "id": 19,
-         "type": "break",
-         "name": "break;",
-         "func_calls": []
-        }
-       ]
-      },
-      "init": "int i = 0;",
-      "cond": "i < 10",
-      "update": "i++",
-      "name": "/for-test"
-     },
-     {
-      "id": 21,
-      "type": "while_loop",
-      "cond": {
-       "id": 22,
-       "type": "expr",
-       "name": "a > 0",
-       "func_calls": []
-      },
-      "body": {
-       "id": 24,
-       "type": "sequence",
-       "name": "while-test_loop_body",
-       "body": [
-        {
-         "id": 23,
-         "type": "stmt",
-         "name": "a--;",
-         "func_calls": []
-        }
-       ]
-      },
-      "name": "while-test"
-     },
-     {
-      "id": 26,
-      "type": "stmt_with_calls",
-      "name": "func(1, 2);",
-      "func_calls": [
-       {
-        "id": 25,
-        "type": "func_call",
-        "func_name": "func",
-        "func_id": 2,
-        "func_args": [
-         {
-          "type": "argument",
-          "name": "1"
-         },
-         {
-          "type": "argument",
-          "name": "2"
-         }
-        ],
-        "position": [
-         0,
-         11
-        ]
-       }
-      ]
-     },
-     {
-      "id": 33,
-      "type": "stmt_with_calls",
-      "name": "int y = func(1, func(2, 3)) + func(4, func(func(5, 6), 7));",
-      "func_calls": [
-       {
-        "id": 28,
-        "type": "func_call",
-        "func_name": "func",
-        "func_id": 2,
-        "func_args": [
-         {
-          "type": "argument",
-          "name": "1"
-         },
-         {
-          "id": 27,
-          "type": "func_call",
-          "func_name": "func",
-          "func_id": 2,
-          "func_args": [
-           {
-            "type": "argument",
-            "name": "2"
-           },
-           {
-            "type": "argument",
-            "name": "3"
-           }
-          ],
-          "position": [
-           13,
-           27
-          ]
-         }
-        ],
-        "position": [
-         5,
-         28
-        ]
-       },
-       {
-        "id": 32,
-        "type": "func_call",
-        "func_name": "func",
-        "func_id": 2,
-        "func_args": [
-         {
-          "type": "argument",
-          "name": "4"
-         },
-         {
-          "id": 30,
-          "type": "func_call",
-          "func_name": "func",
-          "func_id": 2,
-          "func_args": [
-           {
-            "id": 29,
-            "type": "func_call",
-            "func_name": "func",
-            "func_id": 2,
-            "func_args": [
-             {
-              "type": "argument",
-              "name": "5"
-             },
-             {
-              "type": "argument",
-              "name": "6"
-             }
-            ],
-            "position": [
-             40,
-             54
-            ]
-           },
-           {
-            "type": "argument",
-            "name": "7"
-           }
-          ],
-          "position": [
-           35,
-           58
-          ]
-         }
-        ],
-        "position": [
-         27,
-         59
-        ]
-       }
-      ]
-     },
-     {
-      "id": 34,
-      "type": "stmt",
-      "name": "int a = 4;",
-      "func_calls": []
-     },
-     {
-      "id": 35,
-      "type": "stmt",
-      "name": "a = 5;",
+      "name": "return x",
       "func_calls": []
      }
     ]
@@ -300,7 +33,383 @@
   }
  ],
  "global_code": {
-  "body": [],
+  "body": [
+   {
+    "id": 6,
+    "type": "stmt",
+    "name": "x = 1",
+    "func_calls": []
+   },
+   {
+    "id": 7,
+    "type": "alternative",
+    "branches": [
+     {
+      "id": 8,
+      "type": "if",
+      "body": [
+       {
+        "id": 15,
+        "type": "stmt",
+        "name": "x += 10",
+        "func_calls": []
+       }
+      ],
+      "cond": {
+       "id": 14,
+       "type": "expr",
+       "name": "x > 10",
+       "func_calls": []
+      }
+     },
+     {
+      "id": 9,
+      "body": [
+       {
+        "id": 11,
+        "type": "stmt",
+        "name": "x += 20",
+        "func_calls": []
+       }
+      ],
+      "type": "else-if",
+      "cond": {
+       "id": 10,
+       "type": "expr",
+       "name": "x < 5",
+       "func_calls": []
+      }
+     },
+     {
+      "id": 12,
+      "body": [
+       {
+        "id": 13,
+        "type": "stmt",
+        "name": "x += 4",
+        "func_calls": []
+       }
+      ],
+      "type": "else"
+     }
+    ],
+    "name": "cond name"
+   },
+   {
+    "id": 16,
+    "type": "while_loop",
+    "cond": {
+     "id": 17,
+     "type": "expr",
+     "name": "x < 100",
+     "func_calls": []
+    },
+    "body": {
+     "id": 19,
+     "type": "sequence",
+     "name": "while name_loop_body",
+     "body": [
+      {
+       "id": 18,
+       "type": "stmt",
+       "name": "x += 10",
+       "func_calls": []
+      }
+     ]
+    },
+    "name": "while name"
+   },
+   {
+    "id": 20,
+    "variable": "i",
+    "body": {
+     "id": 33,
+     "type": "sequence",
+     "name": "for-name_loop_body",
+     "body": [
+      {
+       "id": 21,
+       "type": "stmt",
+       "name": "print(i)",
+       "func_calls": []
+      },
+      {
+       "id": 23,
+       "type": "stmt_with_calls",
+       "name": "func(1, 10)",
+       "func_calls": [
+        {
+         "id": 22,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          {
+           "type": "argument",
+           "name": "1"
+          },
+          {
+           "type": "argument",
+           "name": "10"
+          }
+         ],
+         "position": [
+          0,
+          15
+         ]
+        }
+       ]
+      },
+      {
+       "id": 25,
+       "type": "stmt_with_calls",
+       "name": "x = func(1, 10)",
+       "func_calls": [
+        {
+         "id": 24,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          {
+           "type": "argument",
+           "name": "1"
+          },
+          {
+           "type": "argument",
+           "name": "10"
+          }
+         ],
+         "position": [
+          4,
+          19
+         ]
+        }
+       ]
+      },
+      {
+       "id": 32,
+       "type": "stmt_with_calls",
+       "name": "y = func(1, 10) + 5 * 42 << 5 + func(func(1, 1), 20, func(func(7, 1), 0))",
+       "func_calls": [
+        {
+         "id": 26,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          {
+           "type": "argument",
+           "name": "1"
+          },
+          {
+           "type": "argument",
+           "name": "10"
+          }
+         ],
+         "position": [
+          4,
+          19
+         ]
+        },
+        {
+         "id": 31,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          {
+           "id": 27,
+           "type": "func_call",
+           "func_name": "func",
+           "func_id": 2,
+           "func_args": [
+            {
+             "type": "argument",
+             "name": "1"
+            },
+            {
+             "type": "argument",
+             "name": "1"
+            }
+           ],
+           "position": [
+            37,
+            51
+           ]
+          },
+          {
+           "type": "argument",
+           "name": "20"
+          },
+          {
+           "id": 29,
+           "type": "func_call",
+           "func_name": "func",
+           "func_id": 2,
+           "func_args": [
+            {
+             "id": 28,
+             "type": "func_call",
+             "func_name": "func",
+             "func_id": 2,
+             "func_args": [
+              {
+               "type": "argument",
+               "name": "7"
+              },
+              {
+               "type": "argument",
+               "name": "1"
+              }
+             ],
+             "position": [
+              58,
+              72
+             ]
+            },
+            {
+             "type": "argument",
+             "name": "0"
+            }
+           ],
+           "position": [
+            53,
+            76
+           ]
+          }
+         ],
+         "position": [
+          32,
+          77
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    "type": "for_loop",
+    "init": "i=1",
+    "cond": "i<5",
+    "update": "i+=1",
+    "start": "1",
+    "stop": "5",
+    "step": "1",
+    "name": "for-name"
+   },
+   {
+    "id": 34,
+    "type": "stmt",
+    "name": "lst = []",
+    "func_calls": []
+   },
+   {
+    "id": 35,
+    "variable": "x",
+    "body": {
+     "id": 36,
+     "type": "sequence",
+     "name": "for-each-name_loop_body",
+     "body": []
+    },
+    "container": "lst",
+    "type": "foreach_loop",
+    "init": "x=lst.first()",
+    "cond": "x!=lst.last()",
+    "update": "x=next(lst, x)",
+    "name": "for-each-name"
+   },
+   {
+    "id": 37,
+    "variable": "x",
+    "body": {
+     "id": 40,
+     "type": "sequence",
+     "name": "37_loop_body",
+     "body": [
+      {
+       "id": 39,
+       "type": "stmt_with_calls",
+       "name": "a = 5 + func(x, 3)",
+       "func_calls": [
+        {
+         "id": 38,
+         "type": "func_call",
+         "func_name": "func",
+         "func_id": 2,
+         "func_args": [
+          {
+           "type": "argument",
+           "name": "x"
+          },
+          {
+           "type": "argument",
+           "name": "3"
+          }
+         ],
+         "position": [
+          8,
+          22
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    "container": "lst",
+    "type": "foreach_loop",
+    "init": "x=lst.first()",
+    "cond": "x!=lst.last()",
+    "update": "x=next(lst, x)"
+   },
+   {
+    "id": 41,
+    "variable": "i",
+    "body": {
+     "id": 43,
+     "type": "sequence",
+     "name": "41_loop_body",
+     "body": [
+      {
+       "id": 42,
+       "type": "stmt",
+       "name": "i += 1",
+       "func_calls": []
+      }
+     ]
+    },
+    "type": "for_loop",
+    "init": "i=1",
+    "cond": "i<4 * a",
+    "update": "i+=a",
+    "start": "1",
+    "stop": "4 * a",
+    "step": "a"
+   },
+   {
+    "id": 44,
+    "type": "alternative",
+    "branches": [
+     {
+      "id": 45,
+      "type": "if",
+      "body": [],
+      "cond": {
+       "id": 46,
+       "type": "expr",
+       "name": "\"emptyname_condition\"",
+       "func_calls": []
+      }
+     }
+    ]
+   },
+   {
+    "id": 47,
+    "type": "stmt",
+    "name": "print(\"Call function\")",
+    "func_calls": []
+   }
+  ],
   "name": "global_code",
   "type": "sequence"
  },

@@ -20,6 +20,9 @@ void main() {
 		printf("1");
 		break;
 	}
+
+	for (;;a++) {
+	}
 	
 	while (a > 0) { // while-test
 		a--;

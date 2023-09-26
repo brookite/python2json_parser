@@ -1,0 +1,312 @@
+{
+ "id": 1,
+ "functions": [
+  {
+   "id": 2,
+   "type": "func",
+   "name": "func",
+   "param_list": [
+    "int x",
+    "int y"
+   ],
+   "is_entry": false,
+   "return_type": "int",
+   "body": {
+    "id": 4,
+    "type": "sequence",
+    "name": "func-body",
+    "body": [
+     {
+      "id": 3,
+      "type": "return",
+      "name": "return x + y;",
+      "func_calls": []
+     }
+    ]
+   }
+  },
+  {
+   "id": 5,
+   "type": "func",
+   "name": "main",
+   "param_list": [],
+   "is_entry": true,
+   "return_type": "void",
+   "body": {
+    "id": 38,
+    "type": "sequence",
+    "name": "main-body",
+    "body": [
+     {
+      "id": 6,
+      "type": "stmt",
+      "name": "printf(\"Main function!!!1\");",
+      "func_calls": []
+     },
+     {
+      "id": 7,
+      "type": "stmt",
+      "name": "int a;",
+      "func_calls": []
+     },
+     {
+      "id": 8,
+      "type": "stmt",
+      "name": "a = 10;",
+      "func_calls": []
+     },
+     {
+      "id": 9,
+      "type": "alternative",
+      "branches": [
+       {
+        "id": 10,
+        "type": "if",
+        "body": [
+         {
+          "id": 16,
+          "type": "stmt",
+          "name": "a = 30;",
+          "func_calls": []
+         }
+        ],
+        "cond": {
+         "id": 15,
+         "type": "expr",
+         "name": "a < 100",
+         "func_calls": []
+        }
+       },
+       {
+        "id": 11,
+        "body": [
+         {
+          "id": 13,
+          "type": "stmt",
+          "name": "a = 45;",
+          "func_calls": []
+         }
+        ],
+        "type": "else-if",
+        "cond": {
+         "id": 12,
+         "type": "expr",
+         "name": "a > 5",
+         "func_calls": []
+        }
+       }
+      ],
+      "name": "if-test1"
+     },
+     {
+      "id": 17,
+      "body": {
+       "id": 20,
+       "type": "sequence",
+       "name": "for-test_loop_body",
+       "body": [
+        {
+         "id": 18,
+         "type": "stmt",
+         "name": "printf(\"1\");",
+         "func_calls": []
+        },
+        {
+         "id": 19,
+         "type": "break",
+         "name": "break;",
+         "func_calls": []
+        }
+       ]
+      },
+      "type": "for_loop",
+      "init": "int i = 0;",
+      "cond": "i < 10",
+      "update": "i++",
+      "variable": "i",
+      "name": "for-test"
+     },
+     {
+      "id": 21,
+      "body": {
+       "id": 22,
+       "type": "sequence",
+       "name": "21_loop_body",
+       "body": []
+      },
+      "type": "for_loop",
+      "init": "",
+      "cond": "",
+      "update": "a++",
+      "variable": null
+     },
+     {
+      "id": 23,
+      "type": "while_loop",
+      "cond": {
+       "id": 24,
+       "type": "expr",
+       "name": "a > 0",
+       "func_calls": []
+      },
+      "body": {
+       "id": 26,
+       "type": "sequence",
+       "name": "while-test_loop_body",
+       "body": [
+        {
+         "id": 25,
+         "type": "stmt",
+         "name": "a--;",
+         "func_calls": []
+        }
+       ]
+      },
+      "name": "while-test"
+     },
+     {
+      "id": 28,
+      "type": "stmt_with_calls",
+      "name": "func(1, 2);",
+      "func_calls": [
+       {
+        "id": 27,
+        "type": "func_call",
+        "func_name": "func",
+        "func_id": 2,
+        "func_args": [
+         {
+          "type": "argument",
+          "name": "1"
+         },
+         {
+          "type": "argument",
+          "name": "2"
+         }
+        ],
+        "position": [
+         0,
+         11
+        ]
+       }
+      ]
+     },
+     {
+      "id": 35,
+      "type": "stmt_with_calls",
+      "name": "int y = func(1, func(2, 3)) + func(4, func(func(5, 6), 7));",
+      "func_calls": [
+       {
+        "id": 30,
+        "type": "func_call",
+        "func_name": "func",
+        "func_id": 2,
+        "func_args": [
+         {
+          "type": "argument",
+          "name": "1"
+         },
+         {
+          "id": 29,
+          "type": "func_call",
+          "func_name": "func",
+          "func_id": 2,
+          "func_args": [
+           {
+            "type": "argument",
+            "name": "2"
+           },
+           {
+            "type": "argument",
+            "name": "3"
+           }
+          ],
+          "position": [
+           13,
+           27
+          ]
+         }
+        ],
+        "position": [
+         5,
+         28
+        ]
+       },
+       {
+        "id": 34,
+        "type": "func_call",
+        "func_name": "func",
+        "func_id": 2,
+        "func_args": [
+         {
+          "type": "argument",
+          "name": "4"
+         },
+         {
+          "id": 32,
+          "type": "func_call",
+          "func_name": "func",
+          "func_id": 2,
+          "func_args": [
+           {
+            "id": 31,
+            "type": "func_call",
+            "func_name": "func",
+            "func_id": 2,
+            "func_args": [
+             {
+              "type": "argument",
+              "name": "5"
+             },
+             {
+              "type": "argument",
+              "name": "6"
+             }
+            ],
+            "position": [
+             40,
+             54
+            ]
+           },
+           {
+            "type": "argument",
+            "name": "7"
+           }
+          ],
+          "position": [
+           35,
+           58
+          ]
+         }
+        ],
+        "position": [
+         27,
+         59
+        ]
+       }
+      ]
+     },
+     {
+      "id": 36,
+      "type": "stmt",
+      "name": "int a = 4;",
+      "func_calls": []
+     },
+     {
+      "id": 37,
+      "type": "stmt",
+      "name": "a = 5;",
+      "func_calls": []
+     }
+    ]
+   }
+  }
+ ],
+ "global_code": {
+  "body": [],
+  "name": "global_code",
+  "type": "sequence"
+ },
+ "name": "algorithm",
+ "type": "algorithm"
+}
