@@ -72,7 +72,6 @@ class AbstractExpressionParser(AbstractEntityParser):
 
 class StatementParser(AbstractExpressionParser):
     def parse(self, *args, **kwargs) -> Optional[dict]:
-        print(self._node.sexp())
         function_calls = self.find_function_calls(self._node)
 
         if self._node.type == "break_statement":
@@ -129,11 +128,9 @@ class ConditionParser(AbstractEntityParser):
             condition, self._parser
         ).parse()
         body = self._node.child_by_field_name("consequence")
-        comment_node = body.named_children[1]
-        if comment_node.type == "comment":
-            result["name"] = (
-                comment_node.text.decode("utf-8")[1:].replace("/ ", "").strip()
-            )
+        comment_node = None if not len(body.named_children) else body.named_children[0]
+        if comment_node and comment_node.type == "comment":
+            result["name"] = comment_node.text.decode("utf-8")[2:].strip()
         for child in body.children:
             if tree_node := self._parser.parse_node(child):
                 result["branches"][0]["body"].append(tree_node)
@@ -210,11 +207,9 @@ class WhileLoopParser(AbstractEntityParser):
         }
 
         body = self._node.child_by_field_name("body")
-        comment_node = body.named_children[0]
-        if comment_node.type == "comment":
-            result["name"] = (
-                comment_node.text.decode("utf-8")[1:].replace("/ ", "").strip()
-            )
+        comment_node = None if not len(body.named_children) else body.named_children[0]
+        if comment_node and comment_node.type == "comment":
+            result["name"] = comment_node.text.decode("utf-8")[2:].strip()
         name = result.get("name", str(result["id"])) + "_loop_body"
         result["body"] = SequenceParser(body, self._parser).parse(name)
 
@@ -226,26 +221,35 @@ class ForLoopParser(AbstractEntityParser):
         initializer = self._node.child_by_field_name("initializer")
         condition = self._node.child_by_field_name("condition")
         update = self._node.child_by_field_name("update")
-        variable = (
-            initializer.child_by_field_name("declarator")
-            .child_by_field_name("declarator")
-            .text.decode("utf-8")
-        )
-        result = {
-            "id": self._parser.get_new_id(),
-            "variable": variable,
-            "body": {},
-            "init": initializer.text.decode("utf-8"),
-            "cond": condition.text.decode("utf-8"),
-            "update": update.text.decode("utf-8"),
-        }
+        result = {"id": self._parser.get_new_id(), "body": {}, "type": "for_loop"}
+        if initializer:
+            result["init"] = initializer.text.decode("utf-8")
+        else:
+            result["init"] = ""
+
+        if condition:
+            result["cond"] = condition.text.decode("utf-8")
+        else:
+            result["cond"] = ""
+
+        if update:
+            result["update"] = update.text.decode("utf-8")
+        else:
+            result["update"] = ""
+
+        if initializer:
+            result["variable"] = (
+                initializer.child_by_field_name("declarator")
+                .named_children[0]
+                .text.decode("utf-8")
+            )
+        else:
+            result["variable"] = None
 
         body = self._node.child_by_field_name("body")
-        comment_node = body.named_children[0]
-        if comment_node.type == "comment":
-            result["name"] = (
-                comment_node.text.decode("utf-8")[1:].replace("/ ", "").strip()
-            )
+        comment_node = None if not len(body.named_children) else body.named_children[0]
+        if comment_node and comment_node.type == "comment":
+            result["name"] = comment_node.text.decode("utf-8")[2:].strip()
         name = result.get("name", str(result["id"])) + "_loop_body"
         result["body"] = SequenceParser(body, self._parser).parse(name)
 

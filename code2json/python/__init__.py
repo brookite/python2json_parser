@@ -252,6 +252,11 @@ class ForLoopParser(AbstractEntityParser):
         result["init"] = f"{variable_name}={start}"
         result["cond"] = f"{variable_name}<{stop}"
         result["update"] = f"{variable_name}+={step}"
+
+        result["start"] = start
+        result["stop"] = stop
+        result["step"] = step
+
         return result
 
     def _parse_foreach_loop(self, container_node, variable_name) -> dict:
