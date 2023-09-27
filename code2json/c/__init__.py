@@ -109,8 +109,8 @@ class FunctionCallParser(AbstractEntityParser):
             "func_args": arguments,
         }
         result["position"] = [
-            self._node.start_point[1] - len(result["func_name"]),
-            self._node.end_point[1],
+            self._node.start_point[1] - 1,
+            self._node.end_point[1] - 1,
         ]
         if result["position"][0] < 0:
             result["position"][0] = 0
