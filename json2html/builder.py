@@ -301,6 +301,11 @@ class StatementRenderer(AbstractEntityRenderer):
 
 
 class FunctionRenderer(AbstractEntityRenderer):
+    PHASE_LABEL_PLAY = "Выполнится"
+    PHASE_LABEL_STOP = "Завершится"
+    ACT_TYPE = "started"
+    ACT_NAME = "выполнение тела функции {}"
+
     def render_html(self, *args, **kwargs) -> str:
         with_buttons = kwargs.get("with_buttons", True)
         arguments = "(" + ", ".join(self._node["param_list"]) + ")"
@@ -318,6 +323,11 @@ class FunctionRenderer(AbstractEntityRenderer):
                 "return_type": self._node.get("return_type"),
                 "tabs": tabs,
                 "function_body": body_html,
+                "seq_id": self._node["body"]["id"],
+                "act_type_play": self.ACT_TYPE,
+                "phase_label_play": self.PHASE_LABEL_PLAY,
+                "phase_label_stop": self.PHASE_LABEL_STOP,
+                "act_iter_name": self.ACT_NAME.format(self._node["name"]),
             }
         )
 

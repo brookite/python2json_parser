@@ -1,10 +1,10 @@
 {% from 'utils/tabs.html' import insert_tabs %}
-{% from 'c/block_body.html' import insert_block %}
+{% from 'c/block_body.html' import insert_block with context %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}
     <span class="keyword">
         {% if return_type %}{{ return_type }}{% else %}void{% endif %}
     </span>
     <span class="variable">{{ func_name }}</span>{{ arguments }}</div>
-{{ insert_block(function_body, tabs) }}
+{{ insert_block(function_body, tabs, seq_id, act_type_play, phase_label_play, act_iter_name, phase_label_stop) }}
 <br>

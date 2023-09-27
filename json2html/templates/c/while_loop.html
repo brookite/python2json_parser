@@ -9,4 +9,4 @@
      #}{{- stop_button(id, phase_label_stop, act_name) -}}
     ({{- play_button(expr_id, expr_act_type_play, expr_phase_label_play, expr_act_name) -}}<span class="variable">{{condition}}</span>){{ make_comment(name) }}
 </div>
-{{ insert_block(loop_body, tabs, seq_id, act_type_play, phase_label_play, phase_label_stop, act_iter_name) }}
+{{ insert_block(loop_body, tabs, seq_id, act_type_play, phase_label_play, act_iter_name, phase_label_stop) }}
