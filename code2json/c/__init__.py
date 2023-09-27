@@ -85,10 +85,14 @@ class StatementParser(AbstractExpressionParser):
         else:
             type = "stmt"
 
+        name = self._node.text.decode("utf-8")
+        if name.endswith(";"):
+            name = name[:-1]
+
         return {
             "id": self._parser.get_new_id(),
             "type": type,
-            "name": self._node.text.decode("utf-8"),
+            "name": name,
             "func_calls": function_calls,
         }
 
@@ -224,6 +228,8 @@ class ForLoopParser(AbstractEntityParser):
         result = {"id": self._parser.get_new_id(), "body": {}, "type": "for_loop"}
         if initializer:
             result["init"] = initializer.text.decode("utf-8")
+            if result["init"].endswith(";"):
+                result["init"] = result["init"][:-1]
         else:
             result["init"] = ""
 

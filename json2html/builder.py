@@ -354,7 +354,7 @@ class JSON2HtmlBuilder:
         directory = os.path.dirname(__file__)
         self.lang = lang
         file_loader = FileSystemLoader(os.path.join(directory, "templates"))
-        self.env = Environment(loader=file_loader)
+        self.env = Environment(loader=file_loader, trim_blocks=True)
 
     def get_template(self, node_type):
         return self.env.get_template(

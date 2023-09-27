@@ -5,16 +5,16 @@
 {% from 'python/block_body.html' import insert_block %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}
-    {{ play_button(id, act_type_play, phase_label_play, act_play_name) }}<span class="keyword">if</span>{#
-     #}{{ stop_button(id, phase_label_stop, act_play_name) }}
-    ({{ play_button(branch.if.expr_id, branch.if.expr_act_type_play, branch.if.expr_phase_label_play, branch.if.expr_act_name) }}<span class="variable">{{branch.if.condition}}</span>):
+    {{- play_button(id, act_type_play, phase_label_play, act_play_name) -}}<span class="keyword">if</span>{#
+     #}{{- stop_button(id, phase_label_stop, act_play_name) -}}
+    ({{- play_button(branch.if.expr_id, branch.if.expr_act_type_play, branch.if.expr_phase_label_play, branch.if.expr_act_name) -}}<span class="variable">{{branch.if.condition}}</span>):
       {{ make_comment(name) }}
 </div>
 {{ insert_block(branch.if.body, tabs) }}
 {% for alter in branch.alternatives %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}&nbsp;<span class="keyword">elif</span>
-    ({{ play_button(alter.expr_id, alter.expr_act_type_play, alter.expr_phase_label_play, alter.expr_act_name) }}<span class="variable">{{ alter.condition }}</span>):
+    ({{- play_button(alter.expr_id, alter.expr_act_type_play, alter.expr_phase_label_play, alter.expr_act_name) }}<span class="variable">{{ alter.condition -}}</span>):
 </div>
 {{ insert_block(alter.body, tabs) }}
 {% endfor %}

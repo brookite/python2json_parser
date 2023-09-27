@@ -3,8 +3,8 @@
 {% from 'utils/tabs.html' import insert_tabs %}
 <div class="code-line">
     {{ insert_tabs(tabs) }}
-    {{ play_button(id, act_type_play, phase_label_play, act_name) }}<span class="variable">{{stmt}}</span>
+    {{- play_button(id, act_type_play, phase_label_play, act_name) -}}<span class="variable">{{stmt}}</span>;
     {% if stmt_with_calls %}
-    {{ stop_button(id, phase_label_stop, act_name) }}
+    {{- stop_button(id, phase_label_stop, act_name) -}}
     {% endif %}
 </div>
