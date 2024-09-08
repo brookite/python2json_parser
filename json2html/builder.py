@@ -382,16 +382,16 @@ class JSON2HtmlBuilder:
                 html += renderer.render_html(tabs=tabs, with_buttons=with_buttons)
         return html
 
-    def build(self, object, with_buttons=True) -> str:
+    def build(self, obj: dict, with_buttons=True) -> str:
         functions = []
         tabs = Tab(0)
-        for function in object["functions"]:
+        for function in obj["functions"]:
             if renderer := self.get_renderer(function):
                 functions.append(
                     renderer.render_html(tabs=tabs, with_buttons=with_buttons)
                 )
         global_html = self.render_nodes(
-            object["global_code"]["body"], tabs=tabs, with_buttons=with_buttons
+            obj["global_code"]["body"], tabs=tabs, with_buttons=with_buttons
         )
         return self.env.get_template("document.html").render(
             {"global_code": global_html, "functions": functions}

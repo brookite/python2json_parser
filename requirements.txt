@@ -1,2 +1,2 @@
-tree_sitter
+tree_sitter<0.22  # see https://github.com/tree-sitter/py-tree-sitter/discussions/241 for more details.
 jinja2

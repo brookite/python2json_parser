@@ -13,6 +13,8 @@ LANGUAGE = Language(os.path.join(directory, "build", "treesitter_c.so"), "c")
 parser = Parser()
 parser.set_language(LANGUAGE)
 
+UTF8 = 'utf-8'
+
 
 class SequenceParser(AbstractEntityParser):
     def parse(self, seq_name, *args, **kwargs) -> Optional[dict]:
@@ -40,12 +42,12 @@ class AbstractExpressionParser(AbstractEntityParser):
         while len(children):
             node = children.pop(0)
             if node.type == "call_expression":
-                name = node.child_by_field_name("function").text.decode("utf-8")
+                name = node.child_by_field_name("function").text.decode(UTF8)
                 args = self.parse_func_args(node.child_by_field_name("arguments"))
                 if function := self._parser.find_function(name)[1]:
                     result.append(
                         FunctionCallParser(node, self._parser).parse(
-                            function, args, self._node.text.decode("utf-8")
+                            function, args, self._node.text.decode(UTF8)
                         )
                     )
                 if node == parent_node:
@@ -64,7 +66,7 @@ class AbstractExpressionParser(AbstractEntityParser):
             else:
                 if node.type != "argument_list":
                     result.append(
-                        {"type": "argument", "name": node.text.decode("utf-8")}
+                        {"type": "argument", "name": node.text.decode(UTF8)}
                     )
                 children.extend(node.named_children)
         return result
@@ -85,9 +87,7 @@ class StatementParser(AbstractExpressionParser):
         else:
             type = "stmt"
 
-        name = self._node.text.decode("utf-8")
-        if name.endswith(";"):
-            name = name[:-1]
+        name = self._node.text.decode(UTF8).strip(";")
 
         return {
             "id": self._parser.get_new_id(),
@@ -102,9 +102,7 @@ class FunctionCallParser(AbstractEntityParser):
         result = {
             "id": self._parser.get_new_id(),
             "type": "func_call",
-            "func_name": self._node.child_by_field_name("function").text.decode(
-                "utf-8"
-            ),
+            "func_name": self._node.child_by_field_name("function").text.decode(UTF8),
             "func_id": function["id"],
             "func_args": arguments,
         }
@@ -128,13 +126,11 @@ class ConditionParser(AbstractEntityParser):
         alternative = self._node.child_by_field_name("alternative")
         self._parse_branches(alternative, result["branches"])
         condition = self._node.child_by_field_name("condition")
-        result["branches"][0]["cond"] = ExpressionParser(
-            condition, self._parser
-        ).parse()
+        result["branches"][0]["cond"] = ExpressionParser(condition, self._parser).parse()
         body = self._node.child_by_field_name("consequence")
         comment_node = None if not len(body.named_children) else body.named_children[0]
         if comment_node and comment_node.type == "comment":
-            result["name"] = comment_node.text.decode("utf-8")[2:].strip()
+            result["name"] = comment_node.text.decode(UTF8).lstrip('/').strip()
         for child in body.children:
             if tree_node := self._parser.parse_node(child):
                 result["branches"][0]["body"].append(tree_node)
@@ -166,12 +162,18 @@ class ConditionParser(AbstractEntityParser):
             self._parse_branches(next, branches)
 
 
+def strip_both_parens(code_str) -> str:
+    while code_str[0] == '('  and code_str[-1] == ')':
+        code_str = code_str[1:-1]
+    return code_str
+
+
 class ExpressionParser(AbstractExpressionParser):
     def parse(self, *args, **kwargs) -> Optional[dict]:
         return {
             "id": self._parser.get_new_id(),
             "type": "expr",
-            "name": self._node.text.decode("utf-8")[1:-1],
+            "name": strip_both_parens(self._node.text.decode(UTF8)),
             "func_calls": self.find_function_calls(self._node),
         }
 
@@ -179,7 +181,7 @@ class ExpressionParser(AbstractExpressionParser):
 class FunctionParser(AbstractEntityParser):
     def parse(self) -> Optional[dict]:
         declarator = self._node.child_by_field_name("declarator")
-        name = declarator.child_by_field_name("declarator").text.decode("utf-8")
+        name = declarator.child_by_field_name("declarator").text.decode(UTF8)
         obj = {
             "id": self._parser.get_new_id(),
             "type": "func",
@@ -189,9 +191,9 @@ class FunctionParser(AbstractEntityParser):
         obj["is_entry"] = obj["name"] == "main"
         params = declarator.child_by_field_name("parameters")
         for param in params.named_children:
-            obj["param_list"].append(param.text.decode("utf-8"))
+            obj["param_list"].append(param.text.decode(UTF8))
         if return_type := self._node.child_by_field_name("type"):
-            obj["return_type"] = return_type.text.decode("utf-8")
+            obj["return_type"] = return_type.text.decode(UTF8)
         seq_name = obj["name"] + "-body"
         obj["body"] = SequenceParser(
             self._node.child_by_field_name("body"), self._parser
@@ -213,7 +215,7 @@ class WhileLoopParser(AbstractEntityParser):
         body = self._node.child_by_field_name("body")
         comment_node = None if not len(body.named_children) else body.named_children[0]
         if comment_node and comment_node.type == "comment":
-            result["name"] = comment_node.text.decode("utf-8")[2:].strip()
+            result["name"] = comment_node.text.decode(UTF8).lstrip('/').strip()
         name = result.get("name", str(result["id"])) + "_loop_body"
         result["body"] = SequenceParser(body, self._parser).parse(name)
 
@@ -227,9 +229,8 @@ class ForLoopParser(AbstractEntityParser):
         update = self._node.child_by_field_name("update")
         result = {"id": self._parser.get_new_id(), "body": {}, "type": "for_loop"}
         if initializer:
-            result["init"] = initializer.text.decode("utf-8")
-            if result["init"].endswith(";"):
-                result["init"] = result["init"][:-1]
+            result["init"] = initializer.text.decode(UTF8)
+            result["init"] = result["init"].rstrip(";")
         else:
             result["init"] = ""
 
@@ -239,7 +240,7 @@ class ForLoopParser(AbstractEntityParser):
             result["cond"] = ""
 
         if update:
-            result["update"] = update.text.decode("utf-8")
+            result["update"] = update.text.decode(UTF8)
         else:
             result["update"] = ""
 
@@ -247,7 +248,7 @@ class ForLoopParser(AbstractEntityParser):
             result["variable"] = (
                 initializer.child_by_field_name("declarator")
                 .named_children[0]
-                .text.decode("utf-8")
+                .text.decode(UTF8)
             )
         else:
             result["variable"] = None
@@ -255,7 +256,7 @@ class ForLoopParser(AbstractEntityParser):
         body = self._node.child_by_field_name("body")
         comment_node = None if not len(body.named_children) else body.named_children[0]
         if comment_node and comment_node.type == "comment":
-            result["name"] = comment_node.text.decode("utf-8")[2:].strip()
+            result["name"] = comment_node.text.decode(UTF8).lstrip('/').strip()
         name = result.get("name", str(result["id"])) + "_loop_body"
         result["body"] = SequenceParser(body, self._parser).parse(name)
 
