@@ -21,10 +21,15 @@ class AlternativeRenderer(AbstractEntityRenderer):
         with_buttons = kwargs.get("with_buttons", True)
         tabs = kwargs.get("tabs", "")
         template = self._ancestor.get_template(self._node["type"])
+        
         branches = {
             "if": {
                 "id": self._node["branches"][0]["id"],
-                "condition": self._node["branches"][0]["cond"]["name"],
+                # "condition": self._node["branches"][0]["cond"]["name"],
+                "condition": self._ancestor.render_node(self._node["branches"][0]["cond"],
+                    tabs=tabs,
+                    with_buttons=with_buttons,
+                ),
                 "body": self._ancestor.render_nodes(
                     self._node["branches"][0]["body"],
                     tabs=tabs.up(),
@@ -300,6 +305,21 @@ class StatementRenderer(AbstractEntityRenderer):
         )
 
 
+class ExpressionRenderer(StatementRenderer):
+    PHASE_LABEL_PLAY = "Вычислится"
+    PHASE_LABEL_STOP = "Завершится"
+    ACT_TYPE = "performed"
+    ACT_NAME_TEMPLATE = {
+        "expr": "условие `{}`",
+        # "break": "остановка цикла",
+        # "return": "возврат",
+        # "continue": "переход к следующей итерации цикла",
+        # "stmt": "действие `{}`",
+        # "stmt_with_calls": "действие `{}`",
+        "func_call": "вызов функции `{}` с аргументами `{}`",
+    }
+
+
 class FunctionRenderer(AbstractEntityRenderer):
     PHASE_LABEL_PLAY = "Выполнится"
     PHASE_LABEL_STOP = "Завершится"
@@ -334,6 +354,7 @@ class FunctionRenderer(AbstractEntityRenderer):
 
 class JSON2HtmlBuilder:
     type2template = {
+        "expr": "expr",
         "stmt": "stmt",
         "stmt_with_calls": "stmt",
         "func": "function",
@@ -351,6 +372,7 @@ class JSON2HtmlBuilder:
         "alternative": AlternativeRenderer,
         "func": FunctionRenderer,
         "stmt_with_calls": StatementRenderer,
+        "expr": ExpressionRenderer,
         "stmt": StatementRenderer,
         "break": StatementRenderer,
         "return": StatementRenderer,
@@ -367,13 +389,25 @@ class JSON2HtmlBuilder:
         self.env = Environment(loader=file_loader, trim_blocks=True)
 
     def get_template(self, node_type):
+        ###
+        print('get_template:', node_type)
+        ###
         return self.env.get_template(
             f"{self.lang}/{self.type2template[node_type]}.html"
         )
 
     def get_renderer(self, node) -> AbstractEntityRenderer:
+        ###
+        print('get_renderer:', node["type"])
+        ###
         if renderer := self.type2renderer.get(node["type"]):
             return renderer(node, self)
+
+    def render_node(self, node, tabs=Tab(0), with_buttons=True) -> str:
+        html = ""
+        if renderer := self.get_renderer(node):
+            html = renderer.render_html(tabs=tabs, with_buttons=with_buttons)
+        return html
 
     def render_nodes(self, nodes, tabs=Tab(0), with_buttons=True) -> str:
         html = ""
@@ -384,6 +418,7 @@ class JSON2HtmlBuilder:
 
     def build(self, obj: dict, with_buttons=True) -> str:
         functions = []
+        # tabs = Tab(0)
         tabs = Tab(0)
         for function in obj["functions"]:
             if renderer := self.get_renderer(function):
@@ -393,6 +428,9 @@ class JSON2HtmlBuilder:
         global_html = self.render_nodes(
             obj["global_code"]["body"], tabs=tabs, with_buttons=with_buttons
         )
+        ###
+        # print(functions)
+        ###
         return self.env.get_template("document.html").render(
             {"global_code": global_html, "functions": functions}
         )

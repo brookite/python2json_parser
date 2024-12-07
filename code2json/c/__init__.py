@@ -235,7 +235,8 @@ class ForLoopParser(AbstractEntityParser):
             result["init"] = ""
 
         if condition:
-            result["cond"] = condition.text.decode("utf-8")
+            result["cond"] = ExpressionParser(condition, self._parser).parse()
+            
         else:
             result["cond"] = ""
 

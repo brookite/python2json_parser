@@ -10,10 +10,10 @@ class Tab:
         self._level = level
 
     def up(self):
-        return Tab(self._level + 1)
+        return Tab(self._level + 1, self._whitespaces)
 
     def down(self):
-        return Tab(self._level - 1)
+        return Tab(self._level - 1, self._whitespaces)
 
     def set_level(self, level: int):
         self._level = level
@@ -25,7 +25,7 @@ class Tab:
         return self._level != 0
 
     def __str__(self):
-        return self._level * ("&nbsp;" * 4)
+        return self._level * ('<span class="left-border"></span>%s' % ("&nbsp;" * self._whitespaces))
 
 
 def html_quote_escape(string):

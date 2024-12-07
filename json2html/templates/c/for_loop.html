@@ -6,8 +6,10 @@
 <div class="code-line">
     {{ insert_tabs(tabs) }}
     {{- play_button(id, act_type_play, phase_label_play, act_name) -}}
-    <span class="keyword">for</span>{{- stop_button(id, phase_label_stop, act_name) -}}
-    <span class="variable">({{init}}; {{cond}}; {{update}})</span>
-    {{ make_comment(name) }}
+    <span class="keyword">for</span>{{- stop_button(id, phase_label_stop, act_name) }}
+    (<span class="variable">{{init}}</span>;
+    <span class="variable">{{cond}}</span>;
+    <span class="variable">{{update}}</span>)
+    &nbsp;{{ make_comment(name) }}
 </div>
 {{ insert_block(loop_body, tabs, seq_id, act_type_play, phase_label_play, act_iter_name, phase_label_stop) }}

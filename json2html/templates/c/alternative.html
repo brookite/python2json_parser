@@ -7,8 +7,7 @@
     {{ insert_tabs(tabs) }}
     {{- play_button(id, act_type_play, phase_label_play, act_play_name) -}}<span class="keyword">if</span>{#
      #}{{- stop_button(id, phase_label_stop, act_play_name) -}}
-    ({{- play_button(branch.if.expr_id, branch.if.expr_act_type_play, branch.if.expr_phase_label_play, branch.if.expr_act_name) -}}
-    <span class="variable">{{branch.if.condition}}</span>)
+    (<!-- {{- play_button(branch.if.expr_id, branch.if.expr_act_type_play, branch.if.expr_phase_label_play, branch.if.expr_act_name) -}} --><span class="variable">{{branch.if.condition}}</span>)
       {{ make_comment(name) }}
 </div>
 {{ insert_block(branch.if.body, tabs, branch.if.id, branch.if.act_type_play, branch.if.phase_label_play,  branch.if.act_play_name, branch.if.phase_label_stop) }}
